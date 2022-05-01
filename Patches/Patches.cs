@@ -9,7 +9,7 @@ namespace FastLink.Patches
     {
         private static void Postfix()
         {
-            if (!PatchUiInit._fastlink)
+            if (!PatchUiInit.Fastlink)
             {
                 return;
             }
@@ -23,7 +23,7 @@ namespace FastLink.Patches
     {
         private static void Postfix()
         {
-            if (!PatchUiInit._fastlink)
+            if (!PatchUiInit.Fastlink)
             {
                 return;
             }

@@ -28,22 +28,22 @@ public static class Functions
     internal static void PopulateServerList(GameObject? linkpanel)
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("POPULATE SERVER LIST");
-        _mServerListElement = linkpanel.transform.Find("ServerList/ServerElement").gameObject;
+        MServerListElement = linkpanel.transform.Find("ServerList/ServerElement").gameObject;
         linkpanel.transform.Find("ServerList").gameObject.GetComponent<Image>().enabled = false;
         GameObject? listRoot = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ServerList/ListRoot")
             .gameObject;
         listRoot.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
-        _mServerListRoot = listRoot
+        MServerListRoot = listRoot
             .GetComponent<RectTransform>();
 
-        _mServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<Text>();
-        _mServerListBaseSize = _mServerListRoot.rect.height;
+        MServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<Text>();
+        MServerListBaseSize = MServerListRoot.rect.height;
     }
 
     internal static void UpdateServerList()
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("UPDATE SERVER LIST");
-        MServerList?.Clear();
+        MServerList.Clear();
         if (Connecting != null)
         {
             FastLinkPlugin.FastLinkLogger.LogDebug("Connecting not null");
@@ -51,7 +51,7 @@ public static class Functions
         }
         else if (Servers.entries.Count > 0)
         {
-            foreach (Servers.Entry? entry in Servers.entries)
+            foreach (Servers.Entry entry in Servers.entries)
             {
                 FastLinkPlugin.FastLinkLogger.LogError($"{entry.ToString()}");
                 MServerList?.Add(entry);
@@ -64,13 +64,13 @@ public static class Functions
             FastLinkPlugin.FastLinkLogger.LogError($"Please create this file {Servers.ConfigPath}");
         }
 
-        MServerList?.Sort((Comparison<Servers.Entry?>)((a, b) =>
-            string.Compare(a?.m_name, b?.m_name, StringComparison.Ordinal)));
-        if (m_joinServer != null && !MServerList.Contains(m_joinServer))
+        MServerList.Sort((Comparison<Servers.Entry>)((a, b) =>
+            string.Compare(a?.MName, b?.MName, StringComparison.Ordinal)));
+        if (MJoinServer != null && !MServerList.Contains(MJoinServer))
         {
             FastLinkPlugin.FastLinkLogger.LogDebug(
                 "Serverlist does not contain selected server, clearing selected server");
-            m_joinServer = MServerList.Count <= 0 ? null : MServerList[0];
+            MJoinServer = MServerList.Count <= 0 ? null : MServerList[0];
         }
 
         UpdateServerListGui(false);
@@ -78,74 +78,71 @@ public static class Functions
 
     private static void UpdateServerListGui(bool centerSelection)
     {
-        if (MServerListElements != null && MServerList != null &&
-            MServerList.Count != MServerListElements.Count)
+        if (MServerList.Count != MServerListElements.Count)
         {
             FastLinkPlugin.FastLinkLogger.LogDebug("UPDATE SERVER LIST GUI");
             foreach (GameObject? serverListElement in MServerListElements)
                 Object.Destroy(serverListElement);
             MServerListElements.Clear();
-            _mServerListRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
-                Mathf.Max(_mServerListBaseSize,
+            MServerListRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
+                Mathf.Max(MServerListBaseSize,
                     MServerList.Count * m_serverListElementStep));
             for (int index = 0; index < MServerList.Count; ++index)
             {
-                GameObject? gameObject = Object.Instantiate(_mServerListElement,
-                    _mServerListRoot);
-                gameObject?.SetActive(true);
-                ((gameObject?.transform as RectTransform)!).anchoredPosition =
+                GameObject? gameObject = Object.Instantiate(MServerListElement,
+                    MServerListRoot);
+                gameObject.SetActive(true);
+                ((gameObject.transform as RectTransform)!).anchoredPosition =
                     new Vector2(0.0f, index * -m_serverListElementStep);
                 gameObject.GetComponent<Button>().onClick.AddListener(OnSelectedServer);
                 MServerListElements.Add(gameObject);
                 if (MServerListElements.Count > 1)
                 {
-                    if (_mServerCount != null) _mServerCount.text = MServerListElements.Count + " Servers";
+                    if (MServerCount != null) MServerCount.text = MServerListElements.Count + " Servers";
                 }
                 else
                 {
-                    if (_mServerCount != null) _mServerCount.text = MServerListElements.Count + " Server";
+                    if (MServerCount != null) MServerCount.text = MServerListElements.Count + " Server";
                 }
             }
         }
 
-        if (MServerList == null) return;
         FastLinkPlugin.FastLinkLogger.LogDebug($"ServerList count: {MServerList.Count}");
         for (int index = 0; index < MServerList.Count; ++index)
         {
-            Servers.Entry? server = MServerList[index];
+            Servers.Entry server = MServerList[index];
             GameObject? serverListElement = MServerListElements?[index];
             if (serverListElement == null) continue;
             serverListElement.GetComponentInChildren<Text>().text =
-                index + 1 + ". " + server?.m_name;
+                index + 1 + ". " + server?.MName;
             serverListElement.GetComponent<Button>().onClick.AddListener(() => DoConnect(new Servers.Entry
             {
-                m_name = server.m_name, m_ip = server.m_ip, m_port = server.m_port, m_pass = server.m_pass
+                MName = server.MName, Mip = server.Mip, MPort = server.MPort, MPass = server.MPass
             }));
             serverListElement.GetComponentInChildren<UITooltip>().m_text = server?.ToString();
-            serverListElement.transform.Find("version").GetComponent<Text>().text = server.m_ip;
-            serverListElement.transform.Find("players").GetComponent<Text>().text = server.m_port.ToString();
+            serverListElement.transform.Find("version").GetComponent<Text>().text = server.Mip;
+            serverListElement.transform.Find("players").GetComponent<Text>().text = server.MPort.ToString();
             serverListElement.transform.Find("Private").gameObject
-                .SetActive(server.m_pass.Length > 1);
+                .SetActive(server.MPass.Length > 1);
             Transform target = serverListElement.transform.Find("selected");
 
-            bool flag = m_joinServer != null && m_joinServer.Equals(server);
+            bool flag = MJoinServer != null && MJoinServer.Equals(server);
             target.gameObject.SetActive(flag);
         }
     }
 
-    private static void DoConnect(Servers.Entry? server)
+    private static void DoConnect(Servers.Entry server)
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("DO CONNECT");
         Connecting = server;
         try
         {
-            if (server?.m_ip == null) return;
-            IPAddress.Parse(server?.m_ip);
+            IPAddress.Parse(server.Mip);
             FastLinkPlugin.FastLinkLogger.LogDebug(
-                $"Server and Port passed into DoConnect: {server.m_ip}:{server.m_port}");
+                $"Server and Port passed into DoConnect: {server.Mip}:{server.MPort}");
             try
             {
-                ZSteamMatchmaking.instance.QueueServerJoin($"{server.m_ip}:{server.m_port}");
+                ZSteamMatchmaking.instance.QueueServerJoin($"{server.Mip}:{server.MPort}");
             }
             catch (Exception e)
             {
@@ -154,52 +151,52 @@ public static class Functions
         }
         catch (FormatException ex)
         {
-            FastLinkPlugin.FastLinkLogger.LogDebug("Resolving: " + server.m_ip);
+            FastLinkPlugin.FastLinkLogger.LogDebug("Resolving: " + server.Mip);
             try
             {
-                _resolveTask = Dns.GetHostEntryAsync(server.m_ip);
+                ResolveTask = Dns.GetHostEntryAsync(server.Mip);
                 FastLinkPlugin.FastLinkLogger.LogDebug("Resolving after task: " +
-                                                       _resolveTask.Result.AddressList[0]);
+                                                       ResolveTask.Result.AddressList[0]);
             }
             catch (Exception e)
             {
                 FastLinkPlugin.FastLinkLogger.LogError(
-                    $"You are trying to resolve the IP : {server.m_ip}, but something is happening causing it to not work properly.");
+                    $"You are trying to resolve the IP : {server.Mip}, but something is happening causing it to not work properly.");
             }
 
-            if (_resolveTask == null)
+            if (ResolveTask == null)
             {
                 FastLinkPlugin.FastLinkLogger.LogError("Your resolve task was null, fix it you idiot");
                 return;
             }
 
-            if (_resolveTask.IsFaulted)
+            if (ResolveTask.IsFaulted)
             {
-                FastLinkPlugin.FastLinkLogger.LogError($"Error resolving IP: {_resolveTask.Exception}");
-                FastLinkPlugin.FastLinkLogger.LogError(_resolveTask.Exception != null
-                    ? _resolveTask.Exception.InnerException.Message
-                    : _resolveTask.Exception.Message);
-                _resolveTask = null;
+                FastLinkPlugin.FastLinkLogger.LogError($"Error resolving IP: {ResolveTask.Exception}");
+                FastLinkPlugin.FastLinkLogger.LogError(ResolveTask.Exception != null
+                    ? ResolveTask.Exception.InnerException.Message
+                    : ResolveTask.Exception.Message);
+                ResolveTask = null;
                 Connecting = null;
             }
-            else if (_resolveTask.IsCanceled)
+            else if (ResolveTask.IsCanceled)
             {
-                FastLinkPlugin.FastLinkLogger.LogError($"Error CANCELED: {_resolveTask.Result.HostName}");
-                _resolveTask = null;
+                FastLinkPlugin.FastLinkLogger.LogError($"Error CANCELED: {ResolveTask.Result.HostName}");
+                ResolveTask = null;
                 Connecting = null;
             }
-            else if (_resolveTask.IsCompleted)
+            else if (ResolveTask.IsCompleted)
             {
-                FastLinkPlugin.FastLinkLogger.LogDebug("COMPLETE: " + server.m_ip);
-                foreach (IPAddress address in _resolveTask.Result.AddressList)
+                FastLinkPlugin.FastLinkLogger.LogDebug("COMPLETE: " + server.Mip);
+                foreach (IPAddress address in ResolveTask.Result.AddressList)
                 {
                     if (address.AddressFamily != AddressFamily.InterNetwork) return;
                     FastLinkPlugin.FastLinkLogger.LogDebug($"Resolved Completed: {address}");
-                    _resolveTask = null;
+                    ResolveTask = null;
 
                     try
                     {
-                        ZSteamMatchmaking.instance.QueueServerJoin($"{address}:{Connecting.m_port}");
+                        ZSteamMatchmaking.instance.QueueServerJoin($"{address}:{Connecting.MPort}");
                     }
                     catch (Exception e)
                     {
@@ -210,26 +207,26 @@ public static class Functions
             }
             else
             {
-                _resolveTask = null;
+                ResolveTask = null;
                 Connecting = null;
                 FastLinkPlugin.FastLinkLogger.LogError("Server DNS resolved to no valid addresses");
             }
         }
     }
 
-    public static string? CurrentPass() => Connecting?.m_pass;
+    public static string? CurrentPass() => Connecting?.MPass;
 
     public static void AbortConnect()
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("ABORT CONNECT");
         Connecting = null;
-        _resolveTask = null;
+        ResolveTask = null;
     }
 
     private static void OnSelectedServer()
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("SELECTED SERVER");
-        m_joinServer = MServerList[FindSelectedServer(EventSystem.current.currentSelectedGameObject)];
+        MJoinServer = MServerList[FindSelectedServer(EventSystem.current.currentSelectedGameObject)];
         UpdateServerListGui(false);
     }
 

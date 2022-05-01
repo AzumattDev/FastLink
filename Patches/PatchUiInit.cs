@@ -13,18 +13,18 @@ namespace FastLink.Patches
     [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.SetupGui))]
     internal class PatchUiInit
     {
-        public static GameObject? _fastlink;
-        public static readonly List<Servers.Entry?>? MServerList = new();
-        public static Servers.Entry? m_joinServer = new();
-        public static readonly List<GameObject?>? MServerListElements = new();
-        public static Text? _mServerCount;
-        public static GameObject? _mServerListElement;
+        public static GameObject? Fastlink;
+        public static readonly List<Servers.Entry> MServerList = new();
+        public static Servers.Entry? MJoinServer = new();
+        public static readonly List<GameObject> MServerListElements = new();
+        public static Text? MServerCount;
+        public static GameObject MServerListElement = new();
         public static float m_serverListElementStep = 28f;
-        public static RectTransform? _mServerListRoot;
+        public static RectTransform MServerListRoot = new();
         public int MServerListRevision = -1;
-        public static float _mServerListBaseSize;
+        public static float MServerListBaseSize;
 
-        public static Task<IPHostEntry>? _resolveTask;
+        public static Task<IPHostEntry>? ResolveTask;
         public static Servers.Entry? Connecting;
         public string? _errorMsg;
 
@@ -33,25 +33,25 @@ namespace FastLink.Patches
             Servers.Init();
 
 
-            GameObject fastlinkGO = new("FastLink");
-            fastlinkGO.AddComponent<RectTransform>();
-            fastlinkGO.AddComponent<DragControl>();
-            fastlinkGO.transform.SetParent(GameObject.Find("GuiRoot/GUI/StartGui").transform);
+            GameObject fastlinkGo = new("FastLink");
+            fastlinkGo.AddComponent<RectTransform>();
+            fastlinkGo.AddComponent<DragControl>();
+            fastlinkGo.transform.SetParent(GameObject.Find("GuiRoot/GUI/StartGui").transform);
 
-            _fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject,
-                fastlinkGO.transform);
-            _fastlink.transform.SetParent(fastlinkGO.transform);
-            _fastlink.gameObject.transform.localScale = new Vector3((float)0.85, (float)0.85, (float)0.85);
-            fastlinkGO.transform.position =
+            Fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject,
+                fastlinkGo.transform);
+            Fastlink.transform.SetParent(fastlinkGo.transform);
+            Fastlink.gameObject.transform.localScale = new Vector3((float)0.85, (float)0.85, (float)0.85);
+            fastlinkGo.transform.position =
                 new Vector2(FastLinkPlugin.UIAnchor.Value.x, FastLinkPlugin.UIAnchor.Value.y);
-            _fastlink.gameObject.AddComponent<DragControl>();
+            Fastlink.gameObject.AddComponent<DragControl>();
 
             /* Set Mod Text */
-            _fastlink.transform.Find("topic").GetComponent<Text>().text = "Fast Link";
+            Fastlink.transform.Find("topic").GetComponent<Text>().text = "Fast Link";
 
             try
             {
-                Functions.DestroyAll(_fastlink);
+                Functions.DestroyAll(Fastlink);
             }
             catch (Exception e)
             {
@@ -59,7 +59,7 @@ namespace FastLink.Patches
                 throw;
             }
 
-            Functions.PopulateServerList(_fastlink);
+            Functions.PopulateServerList(Fastlink);
             Functions.UpdateServerList();
         }
     }

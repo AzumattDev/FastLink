@@ -11,7 +11,7 @@ namespace FastLink.Patches
                                           Path.DirectorySeparatorChar + FastLinkPlugin.Author + "." +
                                           $"{FastLinkPlugin.ModName}_servers.cfg";
 
-        public static List<Entry?> entries = new();
+        public static List<Entry> entries = new();
 
         public static void Init()
         {
@@ -41,8 +41,7 @@ namespace FastLink.Patches
                 if (File.Exists(ConfigPath))
                 {
                     using StreamReader streamReader = File.OpenText(ConfigPath);
-                    string str1;
-                    while ((str1 = streamReader.ReadLine()) != null)
+                    while (streamReader.ReadLine() is { } str1)
                     {
                         string str2 = str1.Trim();
                         if (str2.Length == 0 || str2.StartsWith("#") || str2.StartsWith("//")) continue;
@@ -57,10 +56,10 @@ namespace FastLink.Patches
                                 str5 = strArray[3];
                             entries.Add(new Entry
                             {
-                                m_name = str3,
-                                m_ip = str4,
-                                m_port = num,
-                                m_pass = str5
+                                MName = str3,
+                                Mip = str4,
+                                MPort = num,
+                                MPass = str5
                             });
                         }
                         else
@@ -78,12 +77,12 @@ namespace FastLink.Patches
 
         public class Entry
         {
-            public string m_name;
-            public string m_ip;
-            public int m_port;
-            public string? m_pass;
+            public string MName = "";
+            public string Mip = "";
+            public int MPort;
+            public string? MPass = "";
 
-            public override string ToString() => $"Server(name={m_name},ip={m_ip},port={m_port})";
+            public override string ToString() => $"Server(name={MName},ip={Mip},port={MPort})";
         }
     }
 }
