@@ -51,7 +51,7 @@ namespace FastLink.Patches
                             string str3 = strArray[0];
                             string str4 = strArray[1];
                             int num = int.Parse(strArray[2]);
-                            string str5 = null;
+                            string str5 = "";
                             if (strArray.Length >= 4)
                                 str5 = strArray[3];
                             entries.Add(new Entry
