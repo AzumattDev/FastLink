@@ -23,20 +23,22 @@ namespace FastLink
             Vector3 diff = currentPosition - startMousePosition;
             Vector3 pos = startPosition + diff;
 
-            Vector2 Transform = new(target.rect.width * transform.root.lossyScale.x,
-                target.rect.height * transform.root.lossyScale.y);
+            Rect rect = target.rect;
+            Vector2 vector2 = new(rect.width * ((Component)this).transform.root.lossyScale.x,
+                rect.height * ((Component)this).transform.root.lossyScale.y);
 
-            Vector2 OffsetMin, OffsetMax;
-            OffsetMin.x = pos.x - target.pivot.x * Transform.x;
-            OffsetMin.y = pos.y - target.pivot.y * Transform.y;
-            OffsetMax.x = pos.x + (1 - target.pivot.x) * Transform.x;
-            OffsetMax.y = pos.y + (1 - target.pivot.y) * Transform.y;
-            if (OffsetMin.x < 0)
-                pos.x = target.pivot.x * Transform.x;
-            else if (OffsetMax.x > Screen.width) pos.x = Screen.width - (1 - target.pivot.x) * Transform.x;
-            if (OffsetMin.y < 0)
-                pos.y = target.pivot.y * Transform.y;
-            else if (OffsetMax.y > Screen.height) pos.y = Screen.height - (1 - target.pivot.y) * Transform.y;
+            Vector2 offsetMin, offsetMax;
+            Vector2 pivot = target.pivot;
+            offsetMin.x = pos.x - pivot.x * vector2.x;
+            offsetMin.y = pos.y - pivot.y * vector2.y;
+            offsetMax.x = pos.x + (1 - pivot.x) * vector2.x;
+            offsetMax.y = pos.y + (1 - pivot.y) * vector2.y;
+            if (offsetMin.x < 0)
+                pos.x = target.pivot.x * vector2.x;
+            else if (offsetMax.x > Screen.width) pos.x = Screen.width - (1 - target.pivot.x) * vector2.x;
+            if (offsetMin.y < 0)
+                pos.y = target.pivot.y * vector2.y;
+            else if (offsetMax.y > Screen.height) pos.y = Screen.height - (1 - target.pivot.y) * vector2.y;
             target.position = pos;
         }
 
