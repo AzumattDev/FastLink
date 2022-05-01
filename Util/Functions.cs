@@ -149,7 +149,7 @@ public static class Functions
                 FastLinkPlugin.FastLinkLogger.LogDebug($"Error queueServerJoin: {e}");
             }
         }
-        catch (FormatException ex)
+        catch (FormatException)
         {
             FastLinkPlugin.FastLinkLogger.LogDebug("Resolving: " + server.Mip);
             try
@@ -158,7 +158,7 @@ public static class Functions
                 FastLinkPlugin.FastLinkLogger.LogDebug("Resolving after task: " +
                                                        ResolveTask.Result.AddressList[0]);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 FastLinkPlugin.FastLinkLogger.LogError(
                     $"You are trying to resolve the IP : {server.Mip}, but something is happening causing it to not work properly.");

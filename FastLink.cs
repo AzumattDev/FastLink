@@ -77,7 +77,7 @@ namespace FastLink
         private static ConfigEntry<bool>? _serverConfigLocked;
         public static ConfigEntry<Vector2> UIAnchor = null!;
 
-        private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription? description,
+        private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
             bool synchronizedSetting = true)
         {
             ConfigDescription extendedDescription =
