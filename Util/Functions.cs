@@ -53,7 +53,6 @@ public static class Functions
         {
             foreach (Servers.Entry entry in Servers.entries)
             {
-                FastLinkPlugin.FastLinkLogger.LogError($"{entry.ToString()}");
                 MServerList.Add(entry);
                 DoConnect(entry);
             }

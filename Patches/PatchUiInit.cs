@@ -25,10 +25,14 @@ namespace FastLink.Patches
 
         public static Task<IPHostEntry>? ResolveTask;
         public static Servers.Entry? Connecting;
-        public string? _errorMsg;
 
         private static void Postfix(FejdStartup __instance)
         {
+            Connecting = null;
+            foreach (GameObject serverListElement in MServerListElements)
+                Object.Destroy(serverListElement);
+            MServerListElements.Clear();
+
             Servers.Init();
 
 
