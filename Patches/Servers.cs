@@ -80,7 +80,7 @@ namespace FastLink.Patches
             public string MName = "";
             public string Mip = "";
             public int MPort;
-            public string? MPass = "";
+            public string MPass = "";
 
             public override string ToString() => $"Server(name={MName},ip={Mip},port={MPort})";
         }

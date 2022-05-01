@@ -21,7 +21,6 @@ namespace FastLink.Patches
         public static GameObject MServerListElement = new();
         public static float m_serverListElementStep = 28f;
         public static RectTransform MServerListRoot = new();
-        public int MServerListRevision = -1;
         public static float MServerListBaseSize;
 
         public static Task<IPHostEntry>? ResolveTask;

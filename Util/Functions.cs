@@ -12,7 +12,7 @@ namespace FastLink.Util;
 
 public static class Functions
 {
-    internal static void DestroyAll(GameObject? thing)
+    internal static void DestroyAll(GameObject thing)
     {
         Object.Destroy(thing.transform.Find("Join manually").gameObject);
         Object.Destroy(thing.transform.Find("FilterField").gameObject);
@@ -25,7 +25,7 @@ public static class Functions
     }
 
 
-    internal static void PopulateServerList(GameObject? linkpanel)
+    internal static void PopulateServerList(GameObject linkpanel)
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("POPULATE SERVER LIST");
         MServerListElement = linkpanel.transform.Find("ServerList/ServerElement").gameObject;
@@ -54,7 +54,7 @@ public static class Functions
             foreach (Servers.Entry entry in Servers.entries)
             {
                 FastLinkPlugin.FastLinkLogger.LogError($"{entry.ToString()}");
-                MServerList?.Add(entry);
+                MServerList.Add(entry);
                 DoConnect(entry);
             }
         }
@@ -69,7 +69,7 @@ public static class Functions
         if (MJoinServer != null && !MServerList.Contains(MJoinServer))
         {
             FastLinkPlugin.FastLinkLogger.LogDebug(
-                "Serverlist does not contain selected server, clearing selected server");
+                "Server list does not contain selected server, clearing selected server");
             MJoinServer = MServerList.Count <= 0 ? null : MServerList[0];
         }
 
@@ -114,12 +114,12 @@ public static class Functions
             GameObject? serverListElement = MServerListElements?[index];
             if (serverListElement == null) continue;
             serverListElement.GetComponentInChildren<Text>().text =
-                index + 1 + ". " + server?.MName;
+                index + 1 + ". " + server.MName;
             serverListElement.GetComponent<Button>().onClick.AddListener(() => DoConnect(new Servers.Entry
             {
                 MName = server.MName, Mip = server.Mip, MPort = server.MPort, MPass = server.MPass
             }));
-            serverListElement.GetComponentInChildren<UITooltip>().m_text = server?.ToString();
+            serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
             serverListElement.transform.Find("version").GetComponent<Text>().text = server.Mip;
             serverListElement.transform.Find("players").GetComponent<Text>().text = server.MPort.ToString();
             serverListElement.transform.Find("Private").gameObject
@@ -173,9 +173,9 @@ public static class Functions
             if (ResolveTask.IsFaulted)
             {
                 FastLinkPlugin.FastLinkLogger.LogError($"Error resolving IP: {ResolveTask.Exception}");
-                FastLinkPlugin.FastLinkLogger.LogError(ResolveTask.Exception != null
+                FastLinkPlugin.FastLinkLogger.LogError(ResolveTask.Exception?.InnerException != null
                     ? ResolveTask.Exception.InnerException.Message
-                    : ResolveTask.Exception.Message);
+                    : ResolveTask.Exception?.Message);
                 ResolveTask = null;
                 Connecting = null;
             }
@@ -230,12 +230,12 @@ public static class Functions
         UpdateServerListGui(false);
     }
 
-    private static int FindSelectedServer(GameObject button)
+    private static int FindSelectedServer(Object button)
     {
-        FastLinkPlugin.FastLinkLogger.LogDebug("FIND SELETECED");
+        FastLinkPlugin.FastLinkLogger.LogDebug("FIND SELECTED");
         for (int index = 0; index < MServerListElements.Count; ++index)
         {
-            if ((Object)MServerListElements[index] == button)
+            if (MServerListElements[index] == button)
                 return index;
         }
 
