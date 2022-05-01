@@ -1,0 +1,6 @@
+﻿bin
+obj
+/packages
+FastLink.sln.DotSettings.user
+.idea
+.vs
