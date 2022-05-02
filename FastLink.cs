@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using FastLink.Patches;
@@ -13,6 +14,7 @@ using Object = UnityEngine.Object;
 namespace FastLink
 {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
+    [HarmonyAfter("randyknapp.mods.auga")]
     public class FastLinkPlugin : BaseUnityPlugin
 
     {
@@ -23,6 +25,8 @@ namespace FastLink
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
         private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
+
+        public static bool AugaInstalled = false;
 
         private readonly Harmony _harmony = new(ModGUID);
 
@@ -43,6 +47,16 @@ namespace FastLink
             _harmony.PatchAll();
             SetupWatcher();
         }
+        
+        private void Start()
+        {
+            if (Chainloader.PluginInfos.ContainsKey("randyknapp.mods.auga"))
+            {
+                AugaInstalled = true;
+                FastLinkLogger.LogError("Found Auga");
+            }
+        }
+
 
         private void OnDestroy()
         {

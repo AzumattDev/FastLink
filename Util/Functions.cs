@@ -14,29 +14,61 @@ public static class Functions
 {
     internal static void DestroyAll(GameObject thing)
     {
-        Object.Destroy(thing.transform.Find("Join manually").gameObject);
-        Object.Destroy(thing.transform.Find("FilterField").gameObject);
-        Object.Destroy(thing.transform.Find("Refresh").gameObject);
-        Object.Destroy(thing.transform.Find("FriendGames").gameObject);
-        Object.Destroy(thing.transform.Find("PublicGames").gameObject);
-        Object.Destroy(thing.transform.Find("Server help").gameObject);
-        Object.Destroy(thing.transform.Find("Back").gameObject);
-        Object.Destroy(thing.transform.Find("Join").gameObject);
+        if (FastLinkPlugin.AugaInstalled)
+        {
+            Object.Destroy(thing.transform.Find("Inset").gameObject);
+            Object.Destroy(thing.transform.Find("RefreshButton").gameObject);
+            Object.Destroy(thing.transform.Find("JoinIPButton").gameObject);
+            Object.Destroy(thing.transform.Find("Back").gameObject);
+            Object.Destroy(thing.transform.Find("Connect").gameObject);
+            Object.Destroy(thing.transform.Find("Server help").gameObject);
+            Object.Destroy(thing.transform.Find("Filter").gameObject);
+            Object.Destroy(thing.transform.Find("CheckboxRow").gameObject);
+        }
+        else
+        {
+            Object.Destroy(thing.transform.Find("Join manually").gameObject);
+            Object.Destroy(thing.transform.Find("FilterField").gameObject);
+            Object.Destroy(thing.transform.Find("Refresh").gameObject);
+            Object.Destroy(thing.transform.Find("FriendGames").gameObject);
+            Object.Destroy(thing.transform.Find("PublicGames").gameObject);
+            Object.Destroy(thing.transform.Find("Server help").gameObject);
+            Object.Destroy(thing.transform.Find("Back").gameObject);
+            Object.Destroy(thing.transform.Find("Join").gameObject);
+        }
     }
 
 
     internal static void PopulateServerList(GameObject linkpanel)
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("POPULATE SERVER LIST");
-        MServerListElement = linkpanel.transform.Find("ServerList/ServerElement").gameObject;
-        linkpanel.transform.Find("ServerList").gameObject.GetComponent<Image>().enabled = false;
-        GameObject? listRoot = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ServerList/ListRoot")
-            .gameObject;
-        listRoot.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
-        MServerListRoot = listRoot
-            .GetComponent<RectTransform>();
+        string serverlistText = FastLinkPlugin.AugaInstalled ? "ScrollRect" : "ServerList";
+        string elementText = FastLinkPlugin.AugaInstalled ? "ItemList/ServerListElement" : "ServerElement";
+        MServerListElement = linkpanel.transform.Find(serverlistText + "/" + elementText).gameObject;
+        linkpanel.transform.Find(serverlistText).gameObject.GetComponent<Image>().enabled = false;
+        if (!FastLinkPlugin.AugaInstalled)
+        {
+            GameObject? listRoot = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ServerList/ListRoot")
+                .gameObject;
+            listRoot.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
+            MServerListRoot = listRoot
+                .GetComponent<RectTransform>();
+        }
+        else
+        {
+            GameObject? list = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ScrollRect")
+                .gameObject;
+            GameObject listRootGO = new("ListRoot");
+            listRootGO.AddComponent<RectTransform>();
+            listRootGO.transform.SetParent(GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ScrollRect")
+                .transform);
+            listRootGO.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
+            MServerListRoot = listRootGO
+                .GetComponent<RectTransform>();
+        }
 
-        MServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<Text>();
+        string serverCountElement = FastLinkPlugin.AugaInstalled ? "ServerCount" : "serverCount";
+        MServerCount = linkpanel.transform.Find(serverCountElement).gameObject.GetComponent<Text>();
         MServerListBaseSize = MServerListRoot.rect.height;
     }
 

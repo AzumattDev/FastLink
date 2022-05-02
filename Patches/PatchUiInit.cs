@@ -43,6 +43,7 @@ namespace FastLink.Patches
 
             Fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject,
                 fastlinkGo.transform);
+            if (!Fastlink.activeSelf) Fastlink.SetActive(true);
             Fastlink.transform.SetParent(fastlinkGo.transform);
             Fastlink.gameObject.transform.localScale = new Vector3((float)0.85, (float)0.85, (float)0.85);
             fastlinkGo.transform.position =
@@ -50,11 +51,13 @@ namespace FastLink.Patches
             Fastlink.gameObject.AddComponent<DragControl>();
 
             /* Set Mod Text */
-            Fastlink.transform.Find("topic").GetComponent<Text>().text = "Fast Link";
+            /* If Auga is installed it needs to be Topic */
+            string modText = FastLinkPlugin.AugaInstalled ? "Topic" : "topic";
+            Fastlink.transform.Find(modText).GetComponent<Text>().text = "Fast Link";
 
             try
             {
-                Functions.DestroyAll(Fastlink);
+               Functions.DestroyAll(Fastlink);
             }
             catch (Exception e)
             {
