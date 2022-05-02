@@ -34,8 +34,8 @@ public static class Functions
             .gameObject;
         listRoot.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
         MServerListRoot = listRoot
-            .GetComponent<RectTransform>();
-
+            .GetComponent<RectTransform>(); 
+        listRoot.gameObject.GetComponent<RectTransform>().pivot = new Vector2(listRoot.gameObject.GetComponent<RectTransform>().pivot.x, 1); // Literally here just because Valheim's UI forces scrollbar to halfway.
         MServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<Text>();
         MServerListBaseSize = MServerListRoot.rect.height;
     }
