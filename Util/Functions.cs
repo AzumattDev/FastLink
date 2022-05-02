@@ -54,7 +54,7 @@ public static class Functions
             foreach (Servers.Entry entry in Servers.entries)
             {
                 MServerList.Add(entry);
-                DoConnect(entry);
+                //DoConnect(entry);
             }
         }
         else
@@ -114,10 +114,10 @@ public static class Functions
             if (serverListElement == null) continue;
             serverListElement.GetComponentInChildren<Text>().text =
                 index + 1 + ". " + server.MName;
-            serverListElement.GetComponent<Button>().onClick.AddListener(() => DoConnect(new Servers.Entry
+            /*serverListElement.GetComponent<Button>().onClick.AddListener(() => DoConnect(new Servers.Entry
             {
                 MName = server.MName, Mip = server.Mip, MPort = server.MPort, MPass = server.MPass
-            }));
+            }));*/
             serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
             serverListElement.transform.Find("version").GetComponent<Text>().text = server.Mip;
             serverListElement.transform.Find("players").GetComponent<Text>().text = server.MPort.ToString();
@@ -226,6 +226,10 @@ public static class Functions
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("SELECTED SERVER");
         MJoinServer = MServerList[FindSelectedServer(EventSystem.current.currentSelectedGameObject)];
+        DoConnect(new Servers.Entry
+        {
+            MName = MJoinServer.MName, Mip = MJoinServer.Mip, MPort = MJoinServer.MPort, MPass = MJoinServer.MPass
+        });
         UpdateServerListGui(false);
     }
 
