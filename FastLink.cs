@@ -32,7 +32,7 @@ public class FastLinkPlugin : BaseUnityPlugin
     {
         UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(-900, 200),
             new ConfigDescription("Sets the anchor position of the UI"));
-        UIAnchor.SettingChanged += SaveConfig;
+        UIAnchor.SettingChanged += SaveAndReset;
 
         _harmony.PatchAll();
         SetupWatcher();
@@ -101,9 +101,11 @@ public class FastLinkPlugin : BaseUnityPlugin
         }
     }
 
-    private void SaveConfig(object sender, EventArgs e)
+    private void SaveAndReset(object sender, EventArgs e)
     {
         Config.Save();
+        SetupGui.FastlinkRootGo.GetComponent<RectTransform>().anchoredPosition =
+            new Vector2(UIAnchor.Value.x, UIAnchor.Value.y);
     }
 
 

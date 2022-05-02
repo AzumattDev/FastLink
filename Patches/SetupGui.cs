@@ -14,6 +14,7 @@ namespace FastLink.Patches;
 internal class SetupGui
 {
     public static GameObject? Fastlink;
+    public static GameObject? FastlinkRootGo;
     public static readonly List<Servers.Entry> MServerList = new();
     public static Servers.Entry? MJoinServer = new();
     public static readonly List<GameObject> MServerListElements = new();
@@ -35,16 +36,16 @@ internal class SetupGui
 
         Servers.Init();
 
-        GameObject fastlinkGo = new("FastLink");
-        fastlinkGo.AddComponent<RectTransform>();
-        fastlinkGo.AddComponent<DragControl>();
-        fastlinkGo.transform.SetParent(GameObject.Find("GuiRoot/GUI/StartGui").transform);
+        FastlinkRootGo = new GameObject("FastLink");
+        FastlinkRootGo.AddComponent<RectTransform>();
+        FastlinkRootGo.AddComponent<DragControl>();
+        FastlinkRootGo.transform.SetParent(GameObject.Find("GuiRoot/GUI/StartGui").transform);
 
         Fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject,
-            fastlinkGo.transform);
-        Fastlink.transform.SetParent(fastlinkGo.transform);
+            FastlinkRootGo.transform);
+        Fastlink.transform.SetParent(FastlinkRootGo.transform);
         Fastlink.gameObject.transform.localScale = new Vector3((float)0.85, (float)0.85, (float)0.85);
-        fastlinkGo.transform.position =
+        FastlinkRootGo.transform.position =
             new Vector2(FastLinkPlugin.UIAnchor.Value.x, FastLinkPlugin.UIAnchor.Value.y);
 
 
