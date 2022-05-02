@@ -7,9 +7,11 @@ namespace FastLink.Patches
 {
     internal class Servers
     {
+        internal static string ConfigFileName = FastLinkPlugin.Author + "." +
+                                               $"{FastLinkPlugin.ModName}_servers.cfg";
+
         public static string ConfigPath = Paths.ConfigPath +
-                                          Path.DirectorySeparatorChar + FastLinkPlugin.Author + "." +
-                                          $"{FastLinkPlugin.ModName}_servers.cfg";
+                                          Path.DirectorySeparatorChar + ConfigFileName;
 
         public static List<Entry> entries = new();
 
@@ -21,16 +23,16 @@ namespace FastLink.Patches
                 if (!File.Exists(ConfigPath))
                 {
                     using StreamWriter streamWriter = File.CreateText(ConfigPath);
-                    streamWriter.Write("# Config file for FastLink mod" + Environment.NewLine + Environment.NewLine +
+                    streamWriter.Write("# Config file for Azumatt's FastLink mod" + Environment.NewLine + Environment.NewLine +
                                        "# Lines starting with #, // and empty lines are ignored" +
                                        Environment.NewLine +
                                        "# Put one server per line" + Environment.NewLine + Environment.NewLine +
-                                       "# name:addr:port[:password]" + Environment.NewLine +
-                                       "# addr can be ether IP or a fully qualified domain name" +
+                                       "# Name:Address:Port:Password" + Environment.NewLine +
+                                       "# Address can be ether IP or a fully qualified domain name. I have provided some examples below." +
                                        Environment.NewLine + Environment.NewLine +
                                        "Valheim Test:fastlink.us:2496:Uzc5cGee" + Environment.NewLine +
                                        Environment.NewLine +
-                                       "# password is optional, you can skip it if your server doesn't need a password" +
+                                       "# Password is optional, you can skip it if your server doesn't need a password" +
                                        Environment.NewLine +
                                        "# or if you don't want to write it down" + Environment.NewLine +
                                        Environment.NewLine +

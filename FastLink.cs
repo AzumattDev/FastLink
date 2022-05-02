@@ -1,10 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using FastLink.Patches;
+using FastLink.Util;
 using HarmonyLib;
 using ServerSync;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace FastLink
 {
@@ -54,6 +58,14 @@ namespace FastLink
             watcher.IncludeSubdirectories = true;
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
+
+            FileSystemWatcher serverWatcher = new(Paths.ConfigPath, Servers.ConfigFileName);
+            serverWatcher.Changed += ReadNewServers;
+            serverWatcher.Created += ReadNewServers;
+            serverWatcher.Renamed += ReadNewServers;
+            serverWatcher.IncludeSubdirectories = true;
+            serverWatcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+            serverWatcher.EnableRaisingEvents = true;
         }
 
         private void ReadConfigValues(object sender, FileSystemEventArgs e)
@@ -67,6 +79,30 @@ namespace FastLink
             catch
             {
                 FastLinkLogger.LogError($"There was an issue loading your {ConfigFileName}");
+                FastLinkLogger.LogError("Please check your config entries for spelling and format!");
+            }
+        }
+
+        private void ReadNewServers(object sender, FileSystemEventArgs e)
+        {
+            if (!File.Exists(Servers.ConfigPath)) return;
+            try
+            {
+                FastLinkLogger.LogDebug("Reloading Server List");
+                PatchUiInit.Connecting = null;
+                foreach (GameObject serverListElement in PatchUiInit.MServerListElements)
+                    Destroy(serverListElement);
+                PatchUiInit.MServerListElements.Clear();
+
+                Servers.Init();
+                Functions.AbortConnect();
+                Functions.PopulateServerList(PatchUiInit.Fastlink);
+                Functions.UpdateServerList();
+                PatchUiInit.MJoinServer = null;
+            }
+            catch
+            {
+                FastLinkLogger.LogError($"There was an issue loading your {Servers.ConfigFileName}");
                 FastLinkLogger.LogError("Please check your config entries for spelling and format!");
             }
         }
