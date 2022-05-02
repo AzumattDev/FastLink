@@ -12,6 +12,7 @@ using Object = UnityEngine.Object;
 namespace FastLink;
 
 [BepInPlugin(ModGUID, ModName, ModVersion)]
+[BepInIncompatibility("randyknapp.mods.auga")]
 public class FastLinkPlugin : BaseUnityPlugin
 
 {
