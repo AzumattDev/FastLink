@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 namespace FastLink.Patches;
 
 [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.SetupGui))]
-internal class PatchUiInit
+internal class SetupGui
 {
     public static GameObject? Fastlink;
     public static readonly List<Servers.Entry> MServerList = new();

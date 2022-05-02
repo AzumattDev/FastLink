@@ -69,7 +69,7 @@ internal class Servers
                         FastLinkPlugin.FastLinkLogger.LogWarning("Invalid config line: " + str2);
                 }
 
-                FastLinkPlugin.FastLinkLogger.LogInfo($"Loaded {entries.Count} server entries");
+                FastLinkPlugin.FastLinkLogger.LogDebug($"Loaded {entries.Count} server entries");
             }
         }
         catch (Exception ex)

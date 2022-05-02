@@ -9,7 +9,7 @@ internal class PatchCharacterBack
 {
     private static void Postfix()
     {
-        if (!PatchUiInit.Fastlink)
+        if (!SetupGui.Fastlink)
         {
             return;
         }
@@ -23,7 +23,7 @@ internal class PatchConnectFailed
 {
     private static void Postfix()
     {
-        if (!PatchUiInit.Fastlink)
+        if (!SetupGui.Fastlink)
         {
             return;
         }
@@ -34,7 +34,7 @@ internal class PatchConnectFailed
     private static void JoinServerFailed()
     {
         FastLinkPlugin.FastLinkLogger.LogError("Server connection failed");
-        PatchUiInit.Connecting = null;
+        SetupGui.Connecting = null;
     }
 }
 

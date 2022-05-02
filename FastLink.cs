@@ -83,16 +83,16 @@ public class FastLinkPlugin : BaseUnityPlugin
         try
         {
             FastLinkLogger.LogDebug("Reloading Server List");
-            PatchUiInit.Connecting = null;
-            foreach (GameObject serverListElement in PatchUiInit.MServerListElements)
+            SetupGui.Connecting = null;
+            foreach (GameObject serverListElement in SetupGui.MServerListElements)
                 Destroy(serverListElement);
-            PatchUiInit.MServerListElements.Clear();
+            SetupGui.MServerListElements.Clear();
 
             Servers.Init();
             Functions.AbortConnect();
-            Functions.PopulateServerList(PatchUiInit.Fastlink);
+            Functions.PopulateServerList(SetupGui.Fastlink);
             Functions.UpdateServerList();
-            PatchUiInit.MJoinServer = null;
+            SetupGui.MJoinServer = null;
         }
         catch
         {
