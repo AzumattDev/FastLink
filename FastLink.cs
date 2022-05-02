@@ -30,7 +30,7 @@ public class FastLinkPlugin : BaseUnityPlugin
 
     private void Awake()
     {
-        UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(-943, 461),
+        UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(-900, 200),
             new ConfigDescription("Sets the anchor position of the UI"));
         UIAnchor.SettingChanged += SaveConfig;
 
@@ -103,7 +103,6 @@ public class FastLinkPlugin : BaseUnityPlugin
 
     private void SaveConfig(object sender, EventArgs e)
     {
-        FastLinkLogger.LogError("SETTING CHANGED");
         Config.Save();
     }
 
