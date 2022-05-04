@@ -34,8 +34,10 @@ public static class Functions
             .gameObject;
         listRoot.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
         MServerListRoot = listRoot
-            .GetComponent<RectTransform>(); 
-        listRoot.gameObject.GetComponent<RectTransform>().pivot = new Vector2(listRoot.gameObject.GetComponent<RectTransform>().pivot.x, 1); // Literally here just because Valheim's UI forces scrollbar to halfway.
+            .GetComponent<RectTransform>();
+        listRoot.gameObject.GetComponent<RectTransform>().pivot =
+            new Vector2(listRoot.gameObject.GetComponent<RectTransform>().pivot.x,
+                1); // Literally here just because Valheim's UI forces scrollbar to halfway.
         MServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<Text>();
         MServerListBaseSize = MServerListRoot.rect.height;
     }
@@ -184,13 +186,14 @@ public static class Functions
                 FastLinkPlugin.FastLinkLogger.LogDebug("COMPLETE: " + server.Mip);
                 foreach (IPAddress address in ResolveTask.Result.AddressList)
                 {
-                    if (address.AddressFamily != AddressFamily.InterNetwork) return;
+                    if (address.AddressFamily is not AddressFamily.InterNetwork and not AddressFamily.InterNetworkV6)
+                        return;
                     FastLinkPlugin.FastLinkLogger.LogDebug($"Resolved Completed: {address}");
                     ResolveTask = null;
-
                     try
                     {
-                        ZSteamMatchmaking.instance.QueueServerJoin($"{address}:{Connecting.MPort}");
+                        ZSteamMatchmaking.instance.QueueServerJoin(
+                            $"{(address.AddressFamily is AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}")}:{Connecting.MPort}");
                     }
                     catch (Exception e)
                     {
