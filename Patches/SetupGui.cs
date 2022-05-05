@@ -13,8 +13,8 @@ namespace FastLink.Patches;
 [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.SetupGui))]
 internal class SetupGui
 {
-    public static GameObject? Fastlink;
-    public static GameObject? FastlinkRootGo;
+    public static GameObject Fastlink;
+    public static GameObject FastlinkRootGo;
     public static readonly List<Servers.Entry> MServerList = new();
     public static Servers.Entry? MJoinServer = new();
     public static readonly List<GameObject> MServerListElements = new();

@@ -23,13 +23,16 @@ internal class Servers
             if (!File.Exists(ConfigPath))
             {
                 using StreamWriter streamWriter = File.CreateText(ConfigPath);
-                streamWriter.Write("# Config file for Azumatt's FastLink mod" + Environment.NewLine +
+                streamWriter.Write("# Config your servers for Azumatt's FastLink mod in this file. This file is intentionally made the same as QuickConnect's for easier migration." +
+                                   Environment.NewLine +
                                    Environment.NewLine +
                                    "# Lines starting with #, // and empty lines are ignored" +
                                    Environment.NewLine +
                                    "# Put one server per line" + Environment.NewLine + Environment.NewLine +
                                    "# Name:Address:Port:Password" + Environment.NewLine +
                                    "# Address can be ether IP or a fully qualified domain name. I have provided some examples below." +
+                                   Environment.NewLine +
+                                   "# This mod supports IPv4 and IPv6. You may type them the same, I parse the IP/port for you." +
                                    Environment.NewLine + Environment.NewLine +
                                    "Valheim Test:fastlink.us:2496:Uzc5cGee" + Environment.NewLine +
                                    Environment.NewLine +
