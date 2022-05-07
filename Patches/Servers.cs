@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using BepInEx;
 
 namespace FastLink.Patches;
@@ -8,12 +9,12 @@ namespace FastLink.Patches;
 internal class Servers
 {
     internal static string ConfigFileName = FastLinkPlugin.Author + "." +
-                                            $"{FastLinkPlugin.ModName}_servers.cfg";
+                                            $"{FastLinkPlugin.ModName}_servers.yml";
 
     public static string ConfigPath = Paths.ConfigPath +
                                       Path.DirectorySeparatorChar + ConfigFileName;
 
-    public static List<Entry> entries = new();
+    public static List<Definition> entries = new();
 
     public static void Init()
     {
@@ -23,54 +24,28 @@ internal class Servers
             if (!File.Exists(ConfigPath))
             {
                 using StreamWriter streamWriter = File.CreateText(ConfigPath);
-                streamWriter.Write("# Config your servers for Azumatt's FastLink mod in this file. This file is intentionally made the same as QuickConnect's for easier migration." +
-                                   Environment.NewLine +
-                                   Environment.NewLine +
-                                   "# Lines starting with #, // and empty lines are ignored" +
-                                   Environment.NewLine +
-                                   "# Put one server per line" + Environment.NewLine + Environment.NewLine +
-                                   "# Name:Address:Port:Password" + Environment.NewLine +
-                                   "# Address can be ether IP or a fully qualified domain name. I have provided some examples below." +
-                                   Environment.NewLine +
-                                   "# This mod supports IPv4 and IPv6. You may type them the same, I parse the IP/port for you." +
-                                   Environment.NewLine + Environment.NewLine +
-                                   "Valheim Test:fastlink.us:2496:Uzc5cGee" + Environment.NewLine +
-                                   Environment.NewLine +
-                                   "# Password is optional, you can skip it if your server doesn't need a password" +
-                                   Environment.NewLine +
-                                   "# or if you don't want to write it down" + Environment.NewLine +
-                                   Environment.NewLine +
-                                   "#No Password Server:127.0.0.1:2456:76453");
+                streamWriter.Write(new StringBuilder()
+                        .AppendLine("# Configure your servers for Azumatt's FastLink mod in this file.")
+                        .AppendLine("")
+                        .AppendLine("Example Server:")
+                        .AppendLine("  address: example.com")
+                        .AppendLine("  port: 1234")
+                        .AppendLine("  password: somepassword")
+                        .AppendLine("")
+                        .AppendLine("Some IPv6 Server:")
+                        .AppendLine("  address: 2606:2800:220:1:248:1893:25c8:1946")
+                        .AppendLine("  port: 4023")
+                        .AppendLine("  password: a password with spaces")
+                        .AppendLine("")
+                        .AppendLine("Passwordless IPv4 Server:")
+                        .AppendLine("  address: 93.184.216.34")
+                        .AppendLine("  port: 9999"));
                 streamWriter.Close();
             }
 
             if (File.Exists(ConfigPath))
             {
-                using StreamReader streamReader = File.OpenText(ConfigPath);
-                while (streamReader.ReadLine() is { } str1)
-                {
-                    string str2 = str1.Trim();
-                    if (str2.Length == 0 || str2.StartsWith("#") || str2.StartsWith("//")) continue;
-                    string[] strArray = str2.Split(':');
-                    if (strArray.Length >= 3)
-                    {
-                        string str3 = strArray[0];
-                        string str4 = strArray[1];
-                        int num = int.Parse(strArray[2]);
-                        string str5 = "";
-                        if (strArray.Length >= 4)
-                            str5 = strArray[3];
-                        entries.Add(new Entry
-                        {
-                            MName = str3,
-                            Mip = str4,
-                            MPort = num,
-                            MPass = str5
-                        });
-                    }
-                    else
-                        FastLinkPlugin.FastLinkLogger.LogWarning("Invalid config line: " + str2);
-                }
+                entries.AddRange(Definition.Parse(File.ReadAllText(ConfigPath)));
 
                 FastLinkPlugin.FastLinkLogger.LogDebug($"Loaded {entries.Count} server entries");
             }
@@ -79,15 +54,5 @@ internal class Servers
         {
             FastLinkPlugin.FastLinkLogger.LogError($"Error loading config {ex}");
         }
-    }
-
-    public class Entry
-    {
-        public string MName = "";
-        public string Mip = "";
-        public int MPort;
-        public string MPass = "";
-
-        public override string ToString() => $"Server(name={MName},ip={Mip},port={MPort})";
     }
 }

@@ -53,9 +53,9 @@ public static class Functions
         }
         else if (Servers.entries.Count > 0)
         {
-            foreach (Servers.Entry entry in Servers.entries)
+            foreach (Definition Definition in Servers.entries)
             {
-                MServerList.Add(entry);
+                MServerList.Add(Definition);
             }
         }
         else
@@ -64,8 +64,8 @@ public static class Functions
             FastLinkPlugin.FastLinkLogger.LogError($"Please create this file {Servers.ConfigPath}");
         }
 
-        MServerList.Sort((Comparison<Servers.Entry>)((a, b) =>
-            string.Compare(a?.MName, b?.MName, StringComparison.Ordinal)));
+        MServerList.Sort((Comparison<Definition>)((a, b) =>
+            string.Compare(a?.serverName, b?.serverName, StringComparison.Ordinal)));
         if (MJoinServer != null && !MServerList.Contains(MJoinServer))
         {
             FastLinkPlugin.FastLinkLogger.LogDebug(
@@ -110,16 +110,16 @@ public static class Functions
         FastLinkPlugin.FastLinkLogger.LogDebug($"ServerList count: {MServerList.Count}");
         for (int index = 0; index < MServerList.Count; ++index)
         {
-            Servers.Entry server = MServerList[index];
+            Definition server = MServerList[index];
             GameObject? serverListElement = MServerListElements?[index];
             if (serverListElement == null) continue;
             serverListElement.GetComponentInChildren<Text>().text =
-                index + 1 + ". " + server.MName;
+                index + 1 + ". " + server.serverName;
             serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
-            serverListElement.transform.Find("version").GetComponent<Text>().text = server.Mip;
-            serverListElement.transform.Find("players").GetComponent<Text>().text = server.MPort.ToString();
+            serverListElement.transform.Find("version").GetComponent<Text>().text = server.address;
+            serverListElement.transform.Find("players").GetComponent<Text>().text = server.port.ToString();
             serverListElement.transform.Find("Private").gameObject
-                .SetActive(server.MPass.Length > 1);
+                .SetActive(server.password.Length > 1);
             Transform target = serverListElement.transform.Find("selected");
 
             bool flag = MJoinServer != null && MJoinServer.Equals(server);
@@ -127,37 +127,32 @@ public static class Functions
         }
     }
 
-    private static void Connect(Servers.Entry server)
+    private static void Connect(Definition server)
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("DO CONNECT");
         Connecting = server;
         try
         {
-            IPAddress.Parse(server.Mip);
-            FastLinkPlugin.FastLinkLogger.LogDebug(
-                $"Server and Port passed into Connect: {server.Mip}:{server.MPort}");
-            try
+            IPAddress address = IPAddress.Parse(server.address);
+            if (!JoinServer(address, server.port))
             {
-                ZSteamMatchmaking.instance.QueueServerJoin($"{server.Mip}:{server.MPort}");
-            }
-            catch (Exception e)
-            {
-                FastLinkPlugin.FastLinkLogger.LogDebug($"Error queueServerJoin: {e}");
+                Connecting = null;
+                FastLinkPlugin.FastLinkLogger.LogError("Server address was not valid");
             }
         }
         catch (FormatException)
         {
-            FastLinkPlugin.FastLinkLogger.LogDebug("Resolving: " + server.Mip);
+            FastLinkPlugin.FastLinkLogger.LogDebug("Resolving: " + server.address);
             try
             {
-                ResolveTask = Dns.GetHostEntryAsync(server.Mip);
+                ResolveTask = Dns.GetHostEntryAsync(server.address);
                 FastLinkPlugin.FastLinkLogger.LogDebug("Resolving after task: " +
                                                        ResolveTask.Result.AddressList[0]);
             }
             catch (Exception)
             {
                 FastLinkPlugin.FastLinkLogger.LogError(
-                    $"You are trying to resolve the IP : {server.Mip}, but something is happening causing it to not work properly.");
+                    $"You are trying to resolve the IP : {server.address}, but something is happening causing it to not work properly.");
             }
 
             if (ResolveTask == null)
@@ -183,23 +178,17 @@ public static class Functions
             }
             else if (ResolveTask.IsCompleted)
             {
-                FastLinkPlugin.FastLinkLogger.LogDebug("COMPLETE: " + server.Mip);
+                FastLinkPlugin.FastLinkLogger.LogDebug("COMPLETE: " + server.address);
                 foreach (IPAddress address in ResolveTask.Result.AddressList)
                 {
-                    if (address.AddressFamily is not AddressFamily.InterNetwork and not AddressFamily.InterNetworkV6)
-                        return;
                     FastLinkPlugin.FastLinkLogger.LogDebug($"Resolved Completed: {address}");
                     ResolveTask = null;
-                    try
+                    if (!JoinServer(address, server.port))
                     {
-                        ZSteamMatchmaking.instance.QueueServerJoin(
-                            $"{(address.AddressFamily is AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}")}:{Connecting.MPort}");
+                        Connecting = null;
+                        FastLinkPlugin.FastLinkLogger.LogError("Server DNS resolved to invalid address");
                     }
-                    catch (Exception e)
-                    {
-                        FastLinkPlugin.FastLinkLogger.LogDebug($"ERROR: {e}");
-                        return;
-                    }
+                    return;
                 }
             }
             else
@@ -211,7 +200,25 @@ public static class Functions
         }
     }
 
-    public static string? CurrentPass() => Connecting?.MPass;
+    private static bool JoinServer(IPAddress address, ushort port)
+    {
+        string target = (address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}") + $":{port}";
+        FastLinkPlugin.FastLinkLogger.LogDebug($"Server and Port passed into JoinServer: {target}");
+
+        if (address.AddressFamily == AddressFamily.InterNetwork)
+        {
+            address = address.MapToIPv6();
+        }
+        if (address.AddressFamily != AddressFamily.InterNetworkV6)
+        {
+            return false;
+        }
+        ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
+        ZSteamMatchmaking.instance.m_haveJoinAddr = true;
+        return true;
+    }
+
+    public static string? CurrentPass() => Connecting?.password;
 
     public static void AbortConnect()
     {
@@ -224,9 +231,9 @@ public static class Functions
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("SELECTED SERVER");
         MJoinServer = MServerList[FindSelectedServer(EventSystem.current.currentSelectedGameObject)];
-        Connect(new Servers.Entry
+        Connect(new Definition
         {
-            MName = MJoinServer.MName, Mip = MJoinServer.Mip, MPort = MJoinServer.MPort, MPass = MJoinServer.MPass
+            serverName = MJoinServer.serverName, address = MJoinServer.address, port = MJoinServer.port, password = MJoinServer.password
         });
         UpdateServerListGui(false);
     }

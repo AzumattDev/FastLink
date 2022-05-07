@@ -13,10 +13,10 @@ namespace FastLink.Patches;
 [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.SetupGui))]
 internal class SetupGui
 {
-    public static GameObject Fastlink;
-    public static GameObject FastlinkRootGo;
-    public static readonly List<Servers.Entry> MServerList = new();
-    public static Servers.Entry? MJoinServer = new();
+    public static GameObject Fastlink = null!;
+    public static GameObject FastlinkRootGo = null!;
+    public static readonly List<Definition> MServerList = new();
+    public static Definition? MJoinServer = new();
     public static readonly List<GameObject> MServerListElements = new();
     public static Text? MServerCount;
     public static GameObject MServerListElement = new();
@@ -25,7 +25,7 @@ internal class SetupGui
     public static float MServerListBaseSize;
 
     public static Task<IPHostEntry>? ResolveTask;
-    public static Servers.Entry? Connecting;
+    public static Definition? Connecting;
 
     private static void Postfix(FejdStartup __instance)
     {
