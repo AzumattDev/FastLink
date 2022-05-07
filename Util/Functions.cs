@@ -120,6 +120,8 @@ public static class Functions
             serverListElement.transform.Find("players").GetComponent<Text>().text = server.port.ToString();
             serverListElement.transform.Find("Private").gameObject
                 .SetActive(server.password.Length > 1);
+            serverListElement.transform.Find("PVP").gameObject
+                .SetActive(server.ispvp);
             Transform target = serverListElement.transform.Find("selected");
 
             bool flag = MJoinServer != null && MJoinServer.Equals(server);
@@ -188,6 +190,7 @@ public static class Functions
                         Connecting = null;
                         FastLinkPlugin.FastLinkLogger.LogError("Server DNS resolved to invalid address");
                     }
+
                     return;
                 }
             }
@@ -202,17 +205,20 @@ public static class Functions
 
     private static bool JoinServer(IPAddress address, ushort port)
     {
-        string target = (address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}") + $":{port}";
+        string target = (address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}") +
+                        $":{port}";
         FastLinkPlugin.FastLinkLogger.LogDebug($"Server and Port passed into JoinServer: {target}");
 
         if (address.AddressFamily == AddressFamily.InterNetwork)
         {
             address = address.MapToIPv6();
         }
+
         if (address.AddressFamily != AddressFamily.InterNetworkV6)
         {
             return false;
         }
+
         ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
         ZSteamMatchmaking.instance.m_haveJoinAddr = true;
         return true;
@@ -233,7 +239,8 @@ public static class Functions
         MJoinServer = MServerList[FindSelectedServer(EventSystem.current.currentSelectedGameObject)];
         Connect(new Definition
         {
-            serverName = MJoinServer.serverName, address = MJoinServer.address, port = MJoinServer.port, password = MJoinServer.password
+            serverName = MJoinServer.serverName, address = MJoinServer.address, port = MJoinServer.port,
+            password = MJoinServer.password
         });
         UpdateServerListGui(false);
     }
