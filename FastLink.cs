@@ -38,6 +38,11 @@ public class FastLinkPlugin : BaseUnityPlugin
         SetupWatcher();
     }
 
+    private void Start()
+    {
+        Game.isModded = true;
+    }
+
     private void OnDestroy()
     {
         Config.Save();

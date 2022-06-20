@@ -47,6 +47,8 @@ internal class SetupGui
         Fastlink.gameObject.transform.localScale = new Vector3((float)0.85, (float)0.85, (float)0.85);
         FastlinkRootGo.transform.position =
             new Vector2(FastLinkPlugin.UIAnchor.Value.x, FastLinkPlugin.UIAnchor.Value.y);
+        if (!Fastlink.activeSelf)
+            Fastlink.SetActive(true);
 
 
         /* Set Mod Text */
