@@ -43,6 +43,7 @@ internal class PatchPasswordPrompt
 {
     private static bool Prefix(ZNet __instance, ZRpc rpc, bool needPassword)
     {
+        if (FastLinkPlugin.ShowPasswordPrompt.Value) return true;
         string? str = Functions.CurrentPass();
         if (str == null) return true;
         if (needPassword)
@@ -60,5 +61,15 @@ internal class PatchPasswordPrompt
 
         FastLinkPlugin.FastLinkLogger.LogDebug("Server didn't want password?");
         return true;
+    }
+}
+
+[HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.LoadMainScene))]
+static class FejdStartup_LoadMainScene_Patch
+{
+    static void Postfix(FejdStartup __instance)
+    {
+        if (SetupGui.Fastlink.activeSelf)
+            SetupGui.Fastlink.SetActive(false);
     }
 }

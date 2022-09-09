@@ -34,6 +34,10 @@ public class FastLinkPlugin : BaseUnityPlugin
             new ConfigDescription("Sets the anchor position of the UI"));
         UIAnchor.SettingChanged += SaveAndReset;
 
+        ShowPasswordPrompt = Config.Bind("General", "Show Password Prompt", false,
+            new ConfigDescription(
+                "Set to true if you want to still show the password prompt to the user. This is for servers that have a password but don't wish to use the file to keep the password."));
+
         _harmony.PatchAll();
         SetupWatcher();
     }
@@ -117,6 +121,7 @@ public class FastLinkPlugin : BaseUnityPlugin
     #region ConfigOptions
 
     public static ConfigEntry<Vector2> UIAnchor = null!;
+    public static ConfigEntry<bool> ShowPasswordPrompt = null!;
 
     #endregion
 }
