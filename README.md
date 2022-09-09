@@ -1,4 +1,4 @@
-﻿Vanilla UI to quickly join servers configured in a YAML file.
+Vanilla UI to quickly join servers configured in a YAML file.
 
 
 `Client side mod with live updated configurations via Azumatt.FastLink_servers.yml`
@@ -67,10 +67,17 @@ Passwordless IPv4 Server:
 
 ### Thank you Blaxxun! - [Blaxxun YAML contribution](https://github.com/AzumattDev/FastLink/commit/bfcf290c83e785ced14e3c2d93da2739e86b3102)
 
-For Questions or Comments, find me in the Odin Plus Team Discord:
-[![https://i.imgur.com/XXP6HCU.png](https://i.imgur.com/XXP6HCU.png)](https://discord.gg/Pb6bVMnFb2)
+For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 
+[![https://i.imgur.com/XXP6HCU.png](https://i.imgur.com/XXP6HCU.png)](https://discord.gg/Pb6bVMnFb2)
+<a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 ***
 > # Update Information (Latest listed first)
+> ### v1.1.0
+> - Added ability to still prompt for the password. This is for servers that have a password but don't want to store it in the config file. Requested by ALo#8803 in [my discord](https://discord.gg/pdHgy6Bsng)
+> - Make the GUI disappear as soon as the loading screen shows. It was bothering some people.
+> ### v1.0.1
+> - Toggle the new Game.IsModded variable
+> - Fix the GUI being disabled automatically after the new patch.
 > ### v1.0.0
 > - Initial Release
