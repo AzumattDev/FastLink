@@ -10,6 +10,11 @@ Vanilla UI to quickly join servers configured in a YAML file.
 * Position of the UI [Not Synced with Server]
     * Sets the anchor position of the UI
         * Default value:  -900, 200
+`[General]`
+* Show Password Prompt [Not Synced with Server]
+    * Shows a password prompt when joining a server
+        * Default value:  false
+          * Set to true if you want to still show the password prompt to the user. This is for servers that have a password but don't wish to use the file to keep the password.
 
 > ## Example (default) YAML
 ```yml
