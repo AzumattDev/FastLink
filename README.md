@@ -86,6 +86,8 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 <a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 ***
 > # Update Information (Latest listed first)
+> ### v1.2.1
+> - Fix issue with password. The password could be correct, but the server would still reject it.
 > ### v1.2.0
 > - Add compatibility for 0.211.7
 > - You can specify if a server is crossplay or not. This will show the crossplay's "Shuffle" icon. Please note, this is not fully supported at this time. I am adding in anticipation of when Crossplay in Vanilla is stable.
