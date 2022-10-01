@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using FastLink.Patches;
+using Steamworks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,21 +15,31 @@ public static class Functions
 {
     internal static void DestroyAll(GameObject thing)
     {
-        Object.Destroy(thing.transform.Find("Join manually").gameObject);
-        Object.Destroy(thing.transform.Find("FilterField").gameObject);
-        Object.Destroy(thing.transform.Find("Refresh").gameObject);
-        Object.Destroy(thing.transform.Find("FriendGames").gameObject);
-        Object.Destroy(thing.transform.Find("PublicGames").gameObject);
-        Object.Destroy(thing.transform.Find("Server help").gameObject);
-        Object.Destroy(thing.transform.Find("Back").gameObject);
-        Object.Destroy(thing.transform.Find("Join").gameObject);
+        //Object.DestroyImmediate(thing.transform.Find("Join manually").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("FilterField").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("Refresh").gameObject);
+        //Object.DestroyImmediate(thing.transform.Find("FriendGames").gameObject);
+        //Object.DestroyImmediate(thing.transform.Find("PublicGames").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("Server help").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("Back").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("Join").gameObject);
+
+        // Destroy the new tab buttons for now
+        Object.DestroyImmediate(thing.transform.Find("FavoriteTab").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("RecentTab").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("FriendsTab").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("CommunityTab").gameObject);
+
+        // Destroy the new buttons for now
+        Object.DestroyImmediate(thing.transform.Find("Add server").gameObject);
+        Object.DestroyImmediate(thing.transform.Find("FavoriteButton").gameObject);
     }
 
 
     internal static void PopulateServerList(GameObject linkpanel)
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("POPULATE SERVER LIST");
-        MServerListElement = linkpanel.transform.Find("ServerList/ServerElement").gameObject;
+        MServerListElement = linkpanel.transform.Find("ServerList/ServerElementSteamCrossplay").gameObject;
         linkpanel.transform.Find("ServerList").gameObject.GetComponent<Image>().enabled = false;
         GameObject? listRoot = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ServerList/ListRoot")
             .gameObject;
@@ -82,7 +93,7 @@ public static class Functions
         {
             FastLinkPlugin.FastLinkLogger.LogDebug("UPDATE SERVER LIST GUI");
             foreach (GameObject? serverListElement in MServerListElements)
-                Object.Destroy(serverListElement);
+                Object.DestroyImmediate(serverListElement);
             MServerListElements.Clear();
             MServerListRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
                 Mathf.Max(MServerListBaseSize,
@@ -94,7 +105,7 @@ public static class Functions
                 gameObject.SetActive(true);
                 ((gameObject.transform as RectTransform)!).anchoredPosition =
                     new Vector2(0.0f, index * -m_serverListElementStep);
-                gameObject.GetComponent<Button>().onClick.AddListener(OnSelectedServer);
+                gameObject.GetComponent<Button>().onClick.AddListener(() => OnSelectedServer(gameObject));
                 MServerListElements.Add(gameObject);
                 if (MServerListElements.Count > 1)
                 {
@@ -219,8 +230,14 @@ public static class Functions
             return false;
         }
 
-        ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
-        ZSteamMatchmaking.instance.m_haveJoinAddr = true;
+        SteamNetworkingIPAddr networkingIpAddr = new();
+        networkingIpAddr.SetIPv6(address.GetAddressBytes(), networkingIpAddr.m_port);
+        ZSteamMatchmaking.instance.m_joinData =
+            (ServerJoinData)new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), networkingIpAddr.m_port);
+
+
+        /*ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
+        ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/
         return true;
     }
 
@@ -233,10 +250,9 @@ public static class Functions
         ResolveTask = null;
     }
 
-    private static void OnSelectedServer()
+    private static void OnSelectedServer(GameObject gameObject)
     {
-        FastLinkPlugin.FastLinkLogger.LogDebug("SELECTED SERVER");
-        MJoinServer = MServerList[FindSelectedServer(EventSystem.current.currentSelectedGameObject)];
+        MJoinServer = MServerList[FindSelectedServer(gameObject)];
         Connect(new Definition
         {
             serverName = MJoinServer.serverName, address = MJoinServer.address, port = MJoinServer.port,
@@ -247,13 +263,24 @@ public static class Functions
 
     private static int FindSelectedServer(Object button)
     {
-        FastLinkPlugin.FastLinkLogger.LogDebug("FIND SELECTED");
-        for (int index = 0; index < MServerListElements.Count; ++index)
+        try
         {
-            if (MServerListElements[index] == button)
-                return index;
+            FastLinkPlugin.FastLinkLogger.LogDebug("FIND SELECTED");
+            for (int index = 0; index < MServerListElements.Count; ++index)
+            {
+                if (index >= 0 && index < MServerListElements.Count && MServerListElements[index] == button)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+        catch (Exception e)
+        {
+            FastLinkPlugin.FastLinkLogger.LogDebug("The issues were found here: " + e);
         }
 
-        return -1;
+        return 1;
     }
 }

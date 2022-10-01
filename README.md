@@ -78,6 +78,8 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 <a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 ***
 > # Update Information (Latest listed first)
+> ### v1.2.0
+> - Add compatibility for 0.211.7
 > ### v1.1.0
 > - Added ability to still prompt for the password. This is for servers that have a password but don't want to store it in the config file. Requested by ALo#8803 in [my discord](https://discord.gg/pdHgy6Bsng)
 > - Make the GUI disappear as soon as the loading screen shows. It was bothering some people.

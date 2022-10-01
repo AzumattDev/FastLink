@@ -31,11 +31,10 @@ internal class SetupGui
     {
         Connecting = null;
         foreach (GameObject serverListElement in MServerListElements)
-            Object.Destroy(serverListElement);
+            Object.DestroyImmediate(serverListElement);
         MServerListElements.Clear();
 
         Servers.Init();
-
         FastlinkRootGo = new GameObject("FastLink");
         FastlinkRootGo.AddComponent<RectTransform>();
         FastlinkRootGo.AddComponent<DragControl>();
@@ -43,13 +42,15 @@ internal class SetupGui
 
         Fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject,
             FastlinkRootGo.transform);
+        Object.DestroyImmediate(Fastlink.gameObject.GetComponent<TabHandler>());
+        Object.DestroyImmediate(Fastlink.gameObject.GetComponent<ServerList>());
+        Object.DestroyImmediate(Fastlink.gameObject.GetComponent<UIGamePad>());
         Fastlink.transform.SetParent(FastlinkRootGo.transform);
         Fastlink.gameObject.transform.localScale = new Vector3((float)0.85, (float)0.85, (float)0.85);
         FastlinkRootGo.transform.position =
             new Vector2(FastLinkPlugin.UIAnchor.Value.x, FastLinkPlugin.UIAnchor.Value.y);
         if (!Fastlink.activeSelf)
             Fastlink.SetActive(true);
-
 
         /* Set Mod Text */
         Fastlink.transform.Find("topic").GetComponent<Text>().text = "Fast Link";
@@ -60,7 +61,7 @@ internal class SetupGui
         }
         catch (Exception e)
         {
-            FastLinkPlugin.FastLinkLogger.LogError(e);
+            FastLinkPlugin.FastLinkLogger.LogError("Problem in the destroying of things!" + e);
             throw;
         }
 
