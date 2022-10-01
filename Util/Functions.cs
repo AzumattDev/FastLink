@@ -133,6 +133,8 @@ public static class Functions
                 .SetActive(server.password.Length > 1);
             serverListElement.transform.Find("PVP").gameObject
                 .SetActive(server.ispvp);
+            serverListElement.transform.Find("crossplay").gameObject
+                .SetActive(server.iscrossplay);
             Transform target = serverListElement.transform.Find("selected");
 
             bool flag = MJoinServer != null && MJoinServer.Equals(server);
@@ -231,10 +233,9 @@ public static class Functions
         }
 
         SteamNetworkingIPAddr networkingIpAddr = new();
-        networkingIpAddr.SetIPv6(address.GetAddressBytes(), networkingIpAddr.m_port);
+        networkingIpAddr.SetIPv6(address.GetAddressBytes(), port);
         ZSteamMatchmaking.instance.m_joinData =
-            (ServerJoinData)new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), networkingIpAddr.m_port);
-
+            (ServerJoinData)new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port);
 
         /*ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
         ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/

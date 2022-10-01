@@ -41,6 +41,14 @@ Passwordless IPv4 Server:
   address: 192.0.2.146
   port: 9999
   ispvp: true
+
+# You can specify if a server is crossplay or not. This will show the crossplay's "Shuffle" icon. Please note, this is not fully supported at this time.
+Crossplay Server:
+  address: 92.183.211.42
+  port: 9999
+  password: somepassword
+  iscrossplay: true
+  ispvp: true
 ```
 
 > ## Installation Instructions
@@ -80,6 +88,8 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 > # Update Information (Latest listed first)
 > ### v1.2.0
 > - Add compatibility for 0.211.7
+> - You can specify if a server is crossplay or not. This will show the crossplay's "Shuffle" icon. Please note, this is not fully supported at this time. I am adding in anticipation of when Crossplay in Vanilla is stable.
+>   - Updated the example file to show this. Parameter is `iscrossplay: true`
 > ### v1.1.0
 > - Added ability to still prompt for the password. This is for servers that have a password but don't want to store it in the config file. Requested by ALo#8803 in [my discord](https://discord.gg/pdHgy6Bsng)
 > - Make the GUI disappear as soon as the loading screen shows. It was bothering some people.

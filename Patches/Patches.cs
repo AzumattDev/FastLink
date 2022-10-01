@@ -48,14 +48,15 @@ internal class PatchPasswordPrompt
         if (str == null) return true;
         if (needPassword)
         {
-            FastLinkPlugin.FastLinkLogger.LogDebug("Authenticating with saved password...");
+            FastLinkPlugin.FastLinkLogger.LogDebug($"Authenticating with saved password...{str}");
             __instance.m_connectingDialog.gameObject.SetActive(false);
-            typeof(ZNet).GetMethod("SendPeerInfo", BindingFlags.Instance | BindingFlags.NonPublic)
+            ZNet.instance.SendPeerInfo(rpc, str);
+            /*typeof(ZNet).GetMethod("SendPeerInfo", BindingFlags.Instance | BindingFlags.NonPublic)
                 ?.Invoke(__instance, new object[2]
                 {
                     rpc,
                     str
-                });
+                });*/
             return false;
         }
 

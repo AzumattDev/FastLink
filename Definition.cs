@@ -13,6 +13,8 @@ public class Definition
     public string address { get; set; } = null!;
 
     public bool ispvp { get; set; } = false;
+    
+    public bool iscrossplay { get; set; } = false;
 
     public string password { get; set; } = "";
 
