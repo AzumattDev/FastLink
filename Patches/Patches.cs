@@ -41,22 +41,17 @@ internal class PatchConnectFailed
 [HarmonyPatch(typeof(ZNet), nameof(ZNet.RPC_ClientHandshake))]
 internal class PatchPasswordPrompt
 {
-    private static bool Prefix(ZNet __instance, ZRpc rpc, bool needPassword)
+    private static bool Prefix(ZNet __instance, ZRpc rpc, bool needPassword, string serverPasswordSalt)
     {
         if (FastLinkPlugin.ShowPasswordPrompt.Value) return true;
         string? str = Functions.CurrentPass();
-        if (str == null) return true;
+        if (string.IsNullOrEmpty(str)) return true;
+        ZNet.m_serverPasswordSalt = serverPasswordSalt;
         if (needPassword)
         {
             FastLinkPlugin.FastLinkLogger.LogDebug($"Authenticating with saved password...{str}");
             __instance.m_connectingDialog.gameObject.SetActive(false);
-            ZNet.instance.SendPeerInfo(rpc, str);
-            /*typeof(ZNet).GetMethod("SendPeerInfo", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.Invoke(__instance, new object[2]
-                {
-                    rpc,
-                    str
-                });*/
+            __instance.SendPeerInfo(rpc, str);
             return false;
         }
 
