@@ -9,12 +9,19 @@ Vanilla UI to quickly join servers configured in a YAML file.
 `[UI]`
 * Position of the UI [Not Synced with Server]
     * Sets the anchor position of the UI
-        * Default value:  -900, 200
+        * Default value:  429, 172
+* LocalScale of the UI [Not Synced with Server]
+    * Sets the local scale of the UI. This is overall size of the UI. Defaults to vanilla JoinGame UI size. I prefer 0.85, 0.85, 0.85
+        * Default value:  429, 172
 `[General]`
 * Show Password Prompt [Not Synced with Server]
     * Shows a password prompt when joining a server
         * Default value:  false
           * Set to true if you want to still show the password prompt to the user. This is for servers that have a password but don't wish to use the file to keep the password.
+* Show Password In Tooltip [Not Synced with Server]
+    * Shows the password inside the tooltip when hovering a server listing
+        * Default value:  false
+            * Set to true if you want to show the password inside the tooltip hover. Requires reboot or logout/login to take effect for now.
 
 > ## Example (default) YAML
 ```yml
@@ -86,6 +93,11 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 <a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 ***
 > # Update Information (Latest listed first)
+> > ### v1.2.2
+> - Add tooltip on server listing hover
+> - Add configuration option to change the LocalScale of the UI. Previously was 0.85, 0.85, 0.85. It is now defaulted to 1, 1, 1 just like the panel it's cloned from.
+> - Add configuration option to show the password in the tooltip when hovering a server listing as part of the new tooltip addition.
+> - Fix the UI selecting the first element by default when it loads.
 > ### v1.2.1
 > - Fix issue with password. The password could be correct, but the server would still reject it.
 > ### v1.2.0
