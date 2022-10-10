@@ -81,7 +81,7 @@ public static class Functions
         {
             FastLinkPlugin.FastLinkLogger.LogDebug(
                 "Server list does not contain selected server, clearing selected server");
-            MJoinServer = MServerList.Count <= 0 ? null : MServerList[0];
+            MJoinServer = null;
         }
 
         UpdateServerListGui(false);
@@ -126,7 +126,9 @@ public static class Functions
             if (serverListElement == null) continue;
             serverListElement.GetComponentInChildren<Text>().text =
                 index + 1 + ". " + server.serverName;
-            serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
+            serverListElement.GetComponentInChildren<UITooltip>().m_tooltipPrefab = FastlinkTooltip;
+            serverListElement.GetComponentInChildren<UITooltip>().Set(server.serverName, server.ToString());
+            //serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
             serverListElement.transform.Find("version").GetComponent<Text>().text = server.address;
             serverListElement.transform.Find("players").GetComponent<Text>().text = server.port.ToString();
             serverListElement.transform.Find("Private").gameObject

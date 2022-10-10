@@ -49,6 +49,14 @@ internal class Servers
                     .AppendLine("<color=red>Another IPv4 Server</color>:")
                     .AppendLine("  address: 192.0.2.146")
                     .AppendLine("  port: 9999")
+                    .AppendLine("  ispvp: true")
+                    .AppendLine(
+                        "# You can specify if a server is crossplay or not. This will show the crossplay's \"Shuffle\" icon. Please note, this is not fully supported at this time.")
+                    .AppendLine("Crossplay Server:")
+                    .AppendLine("  address: 92.183.211.42")
+                    .AppendLine("  port: 9999")
+                    .AppendLine("  password: somepassword")
+                    .AppendLine("  iscrossplay: true")
                     .AppendLine("  ispvp: true"));
                 streamWriter.Close();
             }

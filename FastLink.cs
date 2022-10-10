@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -30,14 +32,24 @@ public class FastLinkPlugin : BaseUnityPlugin
 
     private void Awake()
     {
-        UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(-900, 200),
+        UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f),
             new ConfigDescription("Sets the anchor position of the UI"));
         UIAnchor.SettingChanged += SaveAndReset;
+
+        LocalScale = Config.Bind("UI", "LocalScale of the UI", new Vector3(1f, 1f, 1f),
+            new ConfigDescription(
+                "Sets the local scale the UI. This is overall size of the UI. Defaults to vanilla JoinGame UI size. I prefer 0.85, 0.85, 0.85"));
+        LocalScale.SettingChanged += SaveAndReset;
 
         ShowPasswordPrompt = Config.Bind("General", "Show Password Prompt", false,
             new ConfigDescription(
                 "Set to true if you want to still show the password prompt to the user. This is for servers that have a password but don't wish to use the file to keep the password."));
 
+        ShowPasswordInTooltip = Config.Bind("General", "Show Password In Tooltip", false,
+            new ConfigDescription(
+                "Set to true if you want to show the password inside the tooltip hover. Requires reboot or login/logout to take effect for now."));
+        
+        LoadTooltipAsset("fastlink");
         _harmony.PatchAll();
         SetupWatcher();
     }
@@ -115,13 +127,33 @@ public class FastLinkPlugin : BaseUnityPlugin
         Config.Save();
         SetupGui.FastlinkRootGo.GetComponent<RectTransform>().anchoredPosition =
             new Vector2(UIAnchor.Value.x, UIAnchor.Value.y);
+        SetupGui.Fastlink.gameObject.transform.localScale = LocalScale.Value;
     }
 
+
+    private void LoadTooltipAsset(string bundleName)
+    {
+        AssetBundle? assetBundle = GetAssetBundleFromResources(bundleName);
+        SetupGui.FastlinkTooltip = assetBundle.LoadAsset<GameObject>("FastLinkTooltip");
+        assetBundle?.Unload(false);
+    }
+
+    private static AssetBundle GetAssetBundleFromResources(string filename)
+    {
+        Assembly execAssembly = Assembly.GetExecutingAssembly();
+        string resourceName = execAssembly.GetManifestResourceNames()
+            .Single(str => str.EndsWith(filename));
+
+        using Stream? stream = execAssembly.GetManifestResourceStream(resourceName);
+        return AssetBundle.LoadFromStream(stream);
+    }
 
     #region ConfigOptions
 
     public static ConfigEntry<Vector2> UIAnchor = null!;
+    public static ConfigEntry<Vector3> LocalScale = null!;
     public static ConfigEntry<bool> ShowPasswordPrompt = null!;
+    public static ConfigEntry<bool> ShowPasswordInTooltip = null!;
 
     #endregion
 }

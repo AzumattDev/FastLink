@@ -14,6 +14,7 @@ namespace FastLink.Patches;
 internal class SetupGui
 {
     public static GameObject Fastlink = null!;
+    public static GameObject FastlinkTooltip = null!;
     public static GameObject FastlinkRootGo = null!;
     public static readonly List<Definition> MServerList = new();
     public static Definition? MJoinServer = new();
@@ -46,7 +47,7 @@ internal class SetupGui
         Object.DestroyImmediate(Fastlink.gameObject.GetComponent<ServerList>());
         Object.DestroyImmediate(Fastlink.gameObject.GetComponent<UIGamePad>());
         Fastlink.transform.SetParent(FastlinkRootGo.transform);
-        Fastlink.gameObject.transform.localScale = new Vector3((float)0.85, (float)0.85, (float)0.85);
+        Fastlink.gameObject.transform.localScale = FastLinkPlugin.LocalScale.Value;
         FastlinkRootGo.transform.position =
             new Vector2(FastLinkPlugin.UIAnchor.Value.x, FastLinkPlugin.UIAnchor.Value.y);
         if (!Fastlink.activeSelf)
@@ -54,6 +55,7 @@ internal class SetupGui
 
         /* Set Mod Text */
         Fastlink.transform.Find("topic").GetComponent<Text>().text = "Fast Link";
+        FastlinkTooltip.gameObject.SetActive(false); // disable it otherwise it always shows on the side.
 
         try
         {
