@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using BepInEx.Configuration;
 using FastLink.Patches;
 using Steamworks;
 using UnityEngine;
@@ -285,5 +287,79 @@ public static class Functions
         }
 
         return 1;
+    }
+
+    internal static void ShouldShowCursor()
+    {
+        if (FastLinkPlugin.EditorText.Length > 1)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    internal static void EditServersButton(ConfigEntryBase _)
+    {
+        GUILayout.BeginVertical();
+        if (File.Exists(Servers.ConfigPath) && Servers.entries.Count > 0 &&
+            GUILayout.Button("Edit Servers", GUILayout.ExpandWidth(true)))
+        {
+            FastLinkPlugin.EditorText = File.ReadAllText(Servers.ConfigPath);
+        }
+        GUILayout.EndVertical();
+    }
+
+    internal static void SaveFromEditor()
+    {
+        try
+        {
+            File.WriteAllText(Servers.ConfigPath, FastLinkPlugin.EditorText);
+            FastLinkPlugin.FastLinkLogger.LogInfo("Saved servers, rebuilding list");
+        }
+        catch (Exception e)
+        {
+            FastLinkPlugin.FastLinkLogger.LogError("Error saving servers: " + e);
+        }
+    }
+
+    internal static void MakeShitDarkerInABadWay()
+    {
+        for (int i = 0; i < 6; ++i)
+        {
+            GUI.Box(FastLinkPlugin.ScreenRect, Texture2D.blackTexture);
+        }
+    }
+
+    internal static void BuildContentScroller()
+    {
+        FastLinkPlugin.SettingWindowScrollPos = GUILayout.BeginScrollView(FastLinkPlugin.SettingWindowScrollPos, false, true);
+        GUI.SetNextControlName("FastLinkEditor");
+        GUIStyle style = new()
+        {
+            richText = true,
+            normal =
+            {
+                textColor = Color.white,
+                background = Texture2D.blackTexture
+            }
+        };
+        FastLinkPlugin.EditorText = GUILayout.TextArea(FastLinkPlugin.EditorText, style,  GUILayout.ExpandWidth(true),
+            GUILayout.ExpandHeight(true));
+        GUILayout.EndScrollView();
+    }
+
+    internal static void BuildButtons()
+    {
+        GUILayout.BeginVertical(GUILayout.ExpandWidth(true),GUILayout.ExpandHeight(true));
+        if (GUILayout.Button(Localization.instance.Localize("$settings_apply"), GUILayout.ExpandWidth(true)))
+        {
+            SaveFromEditor();
+            FastLinkPlugin.EditorText = "";
+        }
+
+        GUI.backgroundColor = Color.red;
+        GUI.contentColor = Color.white;
+        if (GUILayout.Button("Discard", GUILayout.ExpandWidth(true))) { FastLinkPlugin.EditorText = ""; }
+        GUILayout.EndVertical();
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using FastLink.Util;
+﻿using FastLink.Util;
 using HarmonyLib;
 
 namespace FastLink.Patches;

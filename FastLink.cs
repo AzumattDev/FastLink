@@ -15,7 +15,7 @@ namespace FastLink;
 
 [BepInPlugin(ModGUID, ModName, ModVersion)]
 [BepInIncompatibility("randyknapp.mods.auga")]
-public class FastLinkPlugin : BaseUnityPlugin
+public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
@@ -32,6 +32,10 @@ public class FastLinkPlugin : BaseUnityPlugin
 
     private void Awake()
     {
+        Config.Bind("General", "FastLink URL", "https://valheim.thunderstore.io/package/Azumatt/FastLink/",
+            new ConfigDescription("Link to the mod page", null,
+                new ConfigurationManagerAttributes
+                    { HideSettingName = true, HideDefaultButton = true, Description = $"Edit the {Servers.ConfigFileName} directly from the configuration manager.", CustomDrawer = Functions.EditServersButton }));
         UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f),
             new ConfigDescription("Sets the anchor position of the UI"));
         UIAnchor.SettingChanged += SaveAndReset;
@@ -48,7 +52,6 @@ public class FastLinkPlugin : BaseUnityPlugin
         ShowPasswordInTooltip = Config.Bind("General", "Show Password In Tooltip", false,
             new ConfigDescription(
                 "Set to true if you want to show the password inside the tooltip hover. Requires reboot or login/logout to take effect for now."));
-        
         LoadTooltipAsset("fastlink");
         _harmony.PatchAll();
         SetupWatcher();
@@ -154,6 +157,14 @@ public class FastLinkPlugin : BaseUnityPlugin
     public static ConfigEntry<Vector3> LocalScale = null!;
     public static ConfigEntry<bool> ShowPasswordPrompt = null!;
     public static ConfigEntry<bool> ShowPasswordInTooltip = null!;
+    
+    internal sealed class ConfigurationManagerAttributes
+    {
+        public Action<ConfigEntryBase> CustomDrawer = null!;
+        public bool? HideDefaultButton;
+        public bool? HideSettingName;
+        public string Description = "";
+    }
 
     #endregion
 }
