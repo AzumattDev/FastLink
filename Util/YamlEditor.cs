@@ -10,6 +10,7 @@ public partial class FastLinkPlugin
     internal static Rect ScreenRect;
     internal static string EditorText = "";
     internal static Vector2 SettingWindowScrollPos;
+    internal static bool RichTextOn;
     private void Update() => Functions.ShouldShowCursor();
     private void LateUpdate() => Functions.ShouldShowCursor();
 
@@ -55,7 +56,7 @@ public partial class FastLinkPlugin
         }
 
         GUILayout.BeginHorizontal();
-        GUI.backgroundColor = Color.black;
+        GUI.backgroundColor = Color.white;
         Functions.BuildContentScroller();
         GUI.backgroundColor = Color.green;
         GUI.contentColor = Color.white;

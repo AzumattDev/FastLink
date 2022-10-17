@@ -306,6 +306,7 @@ public static class Functions
         {
             FastLinkPlugin.EditorText = File.ReadAllText(Servers.ConfigPath);
         }
+
         GUILayout.EndVertical();
     }
 
@@ -332,7 +333,8 @@ public static class Functions
 
     internal static void BuildContentScroller()
     {
-        FastLinkPlugin.SettingWindowScrollPos = GUILayout.BeginScrollView(FastLinkPlugin.SettingWindowScrollPos, false, true);
+        FastLinkPlugin.SettingWindowScrollPos =
+            GUILayout.BeginScrollView(FastLinkPlugin.SettingWindowScrollPos, false, true);
         GUI.SetNextControlName("FastLinkEditor");
         GUIStyle style = new()
         {
@@ -343,14 +345,24 @@ public static class Functions
                 background = Texture2D.blackTexture
             }
         };
-        FastLinkPlugin.EditorText = GUILayout.TextArea(FastLinkPlugin.EditorText, style,  GUILayout.ExpandWidth(true),
-            GUILayout.ExpandHeight(true));
+        if (FastLinkPlugin.RichTextOn)
+        {
+            FastLinkPlugin.EditorText = GUILayout.TextArea(FastLinkPlugin.EditorText, style,
+                GUILayout.ExpandWidth(true),
+                GUILayout.ExpandHeight(true));
+        }
+        else
+        {
+            FastLinkPlugin.EditorText = GUILayout.TextArea(FastLinkPlugin.EditorText, GUILayout.ExpandWidth(true),
+                GUILayout.ExpandHeight(true));
+        }
+
         GUILayout.EndScrollView();
     }
 
     internal static void BuildButtons()
     {
-        GUILayout.BeginVertical(GUILayout.ExpandWidth(true),GUILayout.ExpandHeight(true));
+        GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
         if (GUILayout.Button(Localization.instance.Localize("$settings_apply"), GUILayout.ExpandWidth(true)))
         {
             SaveFromEditor();
@@ -359,7 +371,19 @@ public static class Functions
 
         GUI.backgroundColor = Color.red;
         GUI.contentColor = Color.white;
-        if (GUILayout.Button("Discard", GUILayout.ExpandWidth(true))) { FastLinkPlugin.EditorText = ""; }
+        if (GUILayout.Button("Discard", GUILayout.ExpandWidth(true)))
+        {
+            FastLinkPlugin.EditorText = "";
+        }
+
+        GUILayout.Space(20);
+        GUI.backgroundColor = Color.cyan;
+        GUI.contentColor = Color.white;
+        if (GUILayout.Button(FastLinkPlugin.RichTextOn ? "No Rich Text" : "Use Rich Text", GUILayout.ExpandWidth(true)))
+        {
+            FastLinkPlugin.RichTextOn = !FastLinkPlugin.RichTextOn;
+        }
+
         GUILayout.EndVertical();
     }
 }

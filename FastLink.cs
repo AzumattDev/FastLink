@@ -9,6 +9,7 @@ using FastLink.Patches;
 using FastLink.Util;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace FastLink;
@@ -120,8 +121,11 @@ public partial class FastLinkPlugin : BaseUnityPlugin
         }
         catch
         {
-            FastLinkLogger.LogError($"There was an issue loading your {Servers.ConfigFileName}");
-            FastLinkLogger.LogError("Please check your config entries for spelling and format!");
+            if (Player.m_localPlayer == null || SceneManager.GetActiveScene().name != "main")
+            {
+                FastLinkLogger.LogError($"There was an issue loading your {Servers.ConfigFileName}");
+                FastLinkLogger.LogError("Please check your config entries for spelling and format!");
+            }
         }
     }
 
