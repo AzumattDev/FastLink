@@ -93,7 +93,9 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 <a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 ***
 > # Update Information (Latest listed first)
-> > ### v1.2.2
+> ### v1.3.0
+> - Added YAML editor for use in the BepInEx Configuration Manager. This will allow you to edit the YAML file without having to exit the game.
+> ### v1.2.2
 > - Add tooltip on server listing hover
 > - Add configuration option to change the LocalScale of the UI. Previously was 0.85, 0.85, 0.85. It is now defaulted to 1, 1, 1 just like the panel it's cloned from.
 > - Add configuration option to show the password in the tooltip when hovering a server listing as part of the new tooltip addition.
