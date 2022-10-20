@@ -38,7 +38,7 @@ public class Definition
         text.Append($"PvP: {ispvp}");
         text.Append(Environment.NewLine);
         text.Append($"Crossplay Enabled: {iscrossplay}");
-        if (FastLinkPlugin.ShowPasswordInTooltip.Value)
+        if (FastLinkPlugin.ShowPasswordInTooltip.Value == FastLinkPlugin.Toggle.On)
         {
             text.Append(Environment.NewLine);
             text.Append($"Password: {password}");

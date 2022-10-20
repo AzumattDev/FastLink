@@ -77,8 +77,12 @@ public static class Functions
             FastLinkPlugin.FastLinkLogger.LogError($"Please create this file {Servers.ConfigPath}");
         }
 
-        MServerList.Sort((Comparison<Definition>)((a, b) =>
-            string.Compare(a?.serverName, b?.serverName, StringComparison.Ordinal)));
+        if (FastLinkPlugin.Sort.Value == FastLinkPlugin.Toggle.On)
+        {
+            MServerList.Sort((Comparison<Definition>)((a, b) =>
+                string.Compare(a?.serverName, b?.serverName, StringComparison.Ordinal)));
+        }
+
         if (MJoinServer != null && !MServerList.Contains(MJoinServer))
         {
             FastLinkPlugin.FastLinkLogger.LogDebug(

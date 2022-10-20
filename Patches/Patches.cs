@@ -42,7 +42,7 @@ internal class PatchPasswordPrompt
 {
     private static bool Prefix(ZNet __instance, ZRpc rpc, bool needPassword, string serverPasswordSalt)
     {
-        if (FastLinkPlugin.ShowPasswordPrompt.Value) return true;
+        if (FastLinkPlugin.ShowPasswordPrompt.Value == FastLinkPlugin.Toggle.On) return true;
         string? str = Functions.CurrentPass();
         if (string.IsNullOrEmpty(str)) return true;
         ZNet.m_serverPasswordSalt = serverPasswordSalt;

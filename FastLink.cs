@@ -20,7 +20,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.3.0";
+    internal const string ModVersion = "1.3.1";
     internal const string Author = "Azumatt";
     private const string ModGUID = Author + "." + ModName;
     private static string ConfigFileName = ModGUID + ".cfg";
@@ -31,12 +31,26 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     public static readonly ManualLogSource FastLinkLogger =
         BepInEx.Logging.Logger.CreateLogSource(ModName);
 
+    public enum Toggle
+    {
+        Off,
+        On
+    }
+
     private void Awake()
     {
         Config.Bind("General", "FastLink URL", "https://valheim.thunderstore.io/package/Azumatt/FastLink/",
             new ConfigDescription("Link to the mod page", null,
                 new ConfigurationManagerAttributes
-                    { HideSettingName = true, HideDefaultButton = true, Description = $"Edit the {Servers.ConfigFileName} directly from the configuration manager.", CustomDrawer = Functions.EditServersButton }));
+                {
+                    HideSettingName = true, HideDefaultButton = true,
+                    Description = $"Edit the {Servers.ConfigFileName} directly from the configuration manager.",
+                    CustomDrawer = Functions.EditServersButton
+                }));
+        Sort = Config.Bind("General", "Sort List Alphabetically", Toggle.On,
+            new ConfigDescription(
+                "Sorts the Server List Alphabetically. If disabled, the list will be displayed in the same order as the file. NOTE: If you are using colors in your server name, if on, it will still sort but the color you use will have an affect on on the order."));
+        Sort.SettingChanged += (_, _) => ReadNewServers(null!, null!);
         UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f),
             new ConfigDescription("Sets the anchor position of the UI"));
         UIAnchor.SettingChanged += SaveAndReset;
@@ -46,13 +60,14 @@ public partial class FastLinkPlugin : BaseUnityPlugin
                 "Sets the local scale the UI. This is overall size of the UI. Defaults to vanilla JoinGame UI size. I prefer 0.85, 0.85, 0.85"));
         LocalScale.SettingChanged += SaveAndReset;
 
-        ShowPasswordPrompt = Config.Bind("General", "Show Password Prompt", false,
+        ShowPasswordPrompt = Config.Bind("General", "Show Password Prompt", Toggle.Off,
             new ConfigDescription(
                 "Set to true if you want to still show the password prompt to the user. This is for servers that have a password but don't wish to use the file to keep the password."));
 
-        ShowPasswordInTooltip = Config.Bind("General", "Show Password In Tooltip", false,
+        ShowPasswordInTooltip = Config.Bind("General", "Show Password In Tooltip", Toggle.Off,
             new ConfigDescription(
-                "Set to true if you want to show the password inside the tooltip hover. Requires reboot or login/logout to take effect for now."));
+                "Set to true if you want to show the password inside the tooltip hover."));
+        ShowPasswordInTooltip.SettingChanged += (_, _) => ReadNewServers(null!, null!);
         LoadTooltipAsset("fastlink");
         _harmony.PatchAll();
         SetupWatcher();
@@ -159,9 +174,10 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
     public static ConfigEntry<Vector2> UIAnchor = null!;
     public static ConfigEntry<Vector3> LocalScale = null!;
-    public static ConfigEntry<bool> ShowPasswordPrompt = null!;
-    public static ConfigEntry<bool> ShowPasswordInTooltip = null!;
-    
+    public static ConfigEntry<Toggle> Sort = null!;
+    public static ConfigEntry<Toggle> ShowPasswordPrompt = null!;
+    public static ConfigEntry<Toggle> ShowPasswordInTooltip = null!;
+
     internal sealed class ConfigurationManagerAttributes
     {
         public Action<ConfigEntryBase> CustomDrawer = null!;
