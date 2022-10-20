@@ -93,6 +93,10 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 <a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 ***
 > # Update Information (Latest listed first)
+> ### v1.3.1
+> - Allow turning off the sorting of the server names. This is useful if you want to keep the order of the servers in the file.
+> - Switch to using Toggle data type for all true/false options. This allows for the use of a button in the configuration manager instead of a checkbox. (It's more appealing)
+>   - This shouldn't cause issues with your configuration file being messed up, but might cause an overwrite of the values affected.
 > ### v1.3.0
 > - Added YAML editor for use in the BepInEx Configuration Manager. This will allow you to edit the YAML file without having to exit the game.
 > ### v1.2.2
