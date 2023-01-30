@@ -10,17 +10,16 @@ using FastLink.Util;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Object = UnityEngine.Object;
 
 namespace FastLink;
 
 [BepInPlugin(ModGUID, ModName, ModVersion)]
-[BepInIncompatibility("randyknapp.mods.auga")]
+//[BepInIncompatibility("randyknapp.mods.auga")]
 public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.3.1";
+    internal const string ModVersion = "1.3.4";
     internal const string Author = "Azumatt";
     private const string ModGUID = Author + "." + ModName;
     private static string ConfigFileName = ModGUID + ".cfg";
@@ -50,7 +49,9 @@ public partial class FastLinkPlugin : BaseUnityPlugin
         Sort = Config.Bind("General", "Sort List Alphabetically", Toggle.On,
             new ConfigDescription(
                 "Sorts the Server List Alphabetically. If disabled, the list will be displayed in the same order as the file. NOTE: If you are using colors in your server name, if on, it will still sort but the color you use will have an affect on on the order."));
-        Sort.SettingChanged += (_, _) => ReadNewServers(null!, null!);
+        Sort.SettingChanged += (_, _) => ReadNewServers(null!, null!);        
+        HideIP = Config.Bind("General", "Hide the IP in the panel", Toggle.Off, new ConfigDescription("Turn on to hide the IP in the connection panel at the main menu. Also hides it in the tooltip"));
+        HideIP.SettingChanged += (_, _) => ReadNewServers(null!, null!);
         UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f),
             new ConfigDescription("Sets the anchor position of the UI"));
         UIAnchor.SettingChanged += SaveAndReset;
@@ -175,6 +176,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     public static ConfigEntry<Vector2> UIAnchor = null!;
     public static ConfigEntry<Vector3> LocalScale = null!;
     public static ConfigEntry<Toggle> Sort = null!;
+    public static ConfigEntry<Toggle> HideIP = null!;
     public static ConfigEntry<Toggle> ShowPasswordPrompt = null!;
     public static ConfigEntry<Toggle> ShowPasswordInTooltip = null!;
 

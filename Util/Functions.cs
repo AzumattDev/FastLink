@@ -6,7 +6,6 @@ using BepInEx.Configuration;
 using FastLink.Patches;
 using Steamworks;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static FastLink.Patches.SetupGui;
 using Object = UnityEngine.Object;
@@ -135,8 +134,16 @@ public static class Functions
             serverListElement.GetComponentInChildren<UITooltip>().m_tooltipPrefab = FastlinkTooltip;
             serverListElement.GetComponentInChildren<UITooltip>().Set(server.serverName, server.ToString());
             //serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
-            serverListElement.transform.Find("version").GetComponent<Text>().text = server.address;
-            serverListElement.transform.Find("players").GetComponent<Text>().text = server.port.ToString();
+            if (FastLinkPlugin.HideIP.Value == FastLinkPlugin.Toggle.On)
+            {
+                serverListElement.transform.Find("version").GetComponent<Text>().text = "Hidden";
+                serverListElement.transform.Find("players").GetComponent<Text>().text = "";
+            }
+            else
+            {
+                serverListElement.transform.Find("version").GetComponent<Text>().text = server.address;
+                serverListElement.transform.Find("players").GetComponent<Text>().text = server.port.ToString();
+            }
             serverListElement.transform.Find("Private").gameObject
                 .SetActive(server.password.Length > 1);
             serverListElement.transform.Find("PVP").gameObject
@@ -389,5 +396,47 @@ public static class Functions
         }
 
         GUILayout.EndVertical();
+    }
+    
+    private static void DoQuickLoad(string fileName, FileHelpers.FileSource fileSource)
+    {
+
+        string worldName = PlayerPrefs.GetString("world");
+        Game.SetProfile(fileName, fileSource);
+
+        if (string.IsNullOrEmpty(worldName))
+            return;
+
+        FastLinkPlugin.FastLinkLogger.LogDebug($"got world name {worldName}");
+
+        FejdStartup.instance.UpdateCharacterList();
+        FejdStartup.instance.UpdateWorldList(true);
+
+        bool isOn = FejdStartup.instance.m_publicServerToggle.isOn;
+        bool isOn2 = FejdStartup.instance.m_openServerToggle.isOn;
+        string text = FejdStartup.instance.m_serverPassword.text;
+        World world = FejdStartup.instance.FindWorld(worldName);
+        if (world == null)
+            return;
+
+        FastLinkPlugin.FastLinkLogger.LogDebug($"got world");
+
+
+        ZNet.SetServer(true, isOn2, isOn, worldName, text, world);
+        ZNet.ResetServerHost();
+
+        FastLinkPlugin.FastLinkLogger.LogDebug($"Set server");
+        try
+        {
+            string eventLabel = "open:" + isOn2.ToString() + ",public:" + isOn.ToString();
+            Gogan.LogEvent("Menu", "WorldStart", eventLabel, 0L);
+        }
+        catch
+        {
+            FastLinkPlugin.FastLinkLogger.LogDebug($"Error calling Gogan... oh well");
+        }
+
+        FastLinkPlugin.FastLinkLogger.LogDebug($"transitioning...");
+        FejdStartup.instance.TransitionToMainScene();
     }
 }

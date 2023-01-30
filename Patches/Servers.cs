@@ -57,7 +57,15 @@ internal class Servers
                     .AppendLine("  port: 9999")
                     .AppendLine("  password: somepassword")
                     .AppendLine("  iscrossplay: true")
-                    .AppendLine("  ispvp: true"));
+                    .AppendLine("  ispvp: true")
+                    .AppendLine("# You can specify if a server uses the whitelist for players or not. This will show in the tooltip only.")
+                    .AppendLine("Whitelisted Server:")
+                    .AppendLine("  address: 92.183.211.42")
+                    .AppendLine("  port: 9999")
+                    .AppendLine("  password: somepassword")
+                    .AppendLine("  iscrossplay: true")
+                    .AppendLine("  ispvp: true")
+                    .AppendLine("  iswhitelisted: true"));
                 streamWriter.Close();
             }
 
