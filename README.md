@@ -106,6 +106,8 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 <a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 ***
 > # Update Information (Latest listed first)
+> ### v1.3.5
+> - Compiled for against latest Valheim (0.214.2)
 > ### v1.3.4
 > - Add a property to the YAML file to specify if a server is using a whitelist for players or not. This will show in the tooltip hover only.
 > ### v1.3.3
