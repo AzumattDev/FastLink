@@ -19,13 +19,14 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.3.5";
+    internal const string ModVersion = "1.3.6";
     internal const string Author = "Azumatt";
     private const string ModGUID = Author + "." + ModName;
     private static string ConfigFileName = ModGUID + ".cfg";
     private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
 
-    private readonly Harmony _harmony = new(ModGUID);
+    internal static FastLinkPlugin instance = null!;
+    internal readonly Harmony _harmony = new(ModGUID);
 
     public static readonly ManualLogSource FastLinkLogger =
         BepInEx.Logging.Logger.CreateLogSource(ModName);
@@ -38,6 +39,8 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
     private void Awake()
     {
+
+        instance = this;
         Config.Bind("General", "FastLink URL", "https://valheim.thunderstore.io/package/Azumatt/FastLink/",
             new ConfigDescription("Link to the mod page", null,
                 new ConfigurationManagerAttributes

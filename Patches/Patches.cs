@@ -1,4 +1,5 @@
-﻿using FastLink.Util;
+﻿using System.Linq;
+using FastLink.Util;
 using HarmonyLib;
 
 namespace FastLink.Patches;
@@ -17,10 +18,19 @@ internal class PatchCharacterBack
     }
 }
 
-[HarmonyPatch(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.OnJoinServerFailed))]
-internal class PatchConnectFailed
+[HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.Start))]
+static class FejdStartupStartPatch
 {
-    private static void Postfix()
+    static void Postfix(FejdStartup __instance)
+    {
+        // Check backend before applying the patch
+        FastLinkPlugin.instance._harmony.Patch(ZNet.m_onlineBackend == OnlineBackendType.PlayFab
+                ? AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.OnFailed))
+                : AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.OnJoinServerFailed)),
+            postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupStartPatch), nameof(Failed))));
+    }
+
+    private static void Failed()
     {
         if (!SetupGui.Fastlink)
         {
@@ -48,7 +58,15 @@ internal class PatchPasswordPrompt
         ZNet.m_serverPasswordSalt = serverPasswordSalt;
         if (needPassword)
         {
+#if DEBUG
+            
             FastLinkPlugin.FastLinkLogger.LogDebug($"Authenticating with saved password...{str}");
+
+#else
+
+            var printedchars = str.Aggregate("", (current, characters) => current + '*');
+            FastLinkPlugin.FastLinkLogger.LogDebug($"Authenticating with saved password...REDACTED: {printedchars}");
+#endif
             __instance.m_connectingDialog.gameObject.SetActive(false);
             __instance.SendPeerInfo(rpc, str);
             return false;
