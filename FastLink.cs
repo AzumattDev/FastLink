@@ -19,7 +19,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.3.6";
+    internal const string ModVersion = "1.3.7";
     internal const string Author = "Azumatt";
     private const string ModGUID = Author + "." + ModName;
     private static string ConfigFileName = ModGUID + ".cfg";
