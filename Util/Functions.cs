@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using BepInEx.Configuration;
 using FastLink.Patches;
 using Steamworks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static FastLink.Patches.SetupGui;
@@ -36,6 +37,15 @@ public static class Functions
         Object.DestroyImmediate(thing.transform.Find("FavoriteButton").gameObject);
     }
 
+    internal static void MerchButton()
+    {
+        MerchRootGo = GameObject.Find("GUI/StartGui/Menu/StartGui_MerchButton").gameObject;
+        if (MerchRootGo != null)
+        {
+            MerchRootGo.AddComponent<MerchAreaDragControl>();
+        }
+    }
+
 
     internal static void PopulateServerList(GameObject linkpanel)
     {
@@ -50,7 +60,7 @@ public static class Functions
         listRoot.gameObject.GetComponent<RectTransform>().pivot =
             new Vector2(listRoot.gameObject.GetComponent<RectTransform>().pivot.x,
                 1); // Literally here just because Valheim's UI forces scrollbar to halfway.
-        MServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<Text>();
+        MServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<TextMeshProUGUI>();
         MServerListBaseSize = MServerListRoot.rect.height;
     }
 
@@ -100,26 +110,20 @@ public static class Functions
             foreach (GameObject? serverListElement in MServerListElements)
                 Object.DestroyImmediate(serverListElement);
             MServerListElements.Clear();
-            MServerListRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
-                Mathf.Max(MServerListBaseSize,
-                    MServerList.Count * m_serverListElementStep));
+            MServerListRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(MServerListBaseSize, MServerList.Count * m_serverListElementStep));
             for (int index = 0; index < MServerList.Count; ++index)
             {
-                GameObject? gameObject = Object.Instantiate(MServerListElement,
-                    MServerListRoot);
+                GameObject? gameObject = Object.Instantiate(MServerListElement, MServerListRoot);
                 gameObject.SetActive(true);
-                ((gameObject.transform as RectTransform)!).anchoredPosition =
-                    new Vector2(0.0f, index * -m_serverListElementStep);
+                ((gameObject.transform as RectTransform)!).anchoredPosition = new Vector2(0.0f, index * -m_serverListElementStep);
                 gameObject.GetComponent<Button>().onClick.AddListener(() => OnSelectedServer(gameObject));
-                MServerListElements.Add(gameObject);
-                if (MServerListElements.Count > 1)
+                if (!MServerListElements.Contains(gameObject))
                 {
-                    if (MServerCount != null) MServerCount.text = MServerListElements.Count + " Servers";
+                    MServerListElements.Add(gameObject);
                 }
-                else
-                {
-                    if (MServerCount != null) MServerCount.text = MServerListElements.Count + " Server";
-                }
+
+                string servers = MServerListElements.Count > 1 ? " Servers" : " Server";
+                if (MServerCount != null) MServerCount.text = MServerListElements.Count + servers;
             }
         }
 
@@ -129,27 +133,29 @@ public static class Functions
             Definition server = MServerList[index];
             GameObject? serverListElement = MServerListElements?[index];
             if (serverListElement == null) continue;
-            serverListElement.GetComponentInChildren<Text>().text =
-                index + 1 + ". " + server.serverName;
+            serverListElement.GetComponentInChildren<Text>().text = index + 1 + ". " + server.serverName;
             serverListElement.GetComponentInChildren<UITooltip>().m_tooltipPrefab = FastlinkTooltip;
             serverListElement.GetComponentInChildren<UITooltip>().Set(server.serverName, server.ToString());
             //serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
+
+            // Cache the text elements
+            var players = serverListElement.transform.Find("players").GetComponent<Text>().text = string.Empty;
+            var modifiers = serverListElement.transform.Find("modifiers").GetComponent<Text>();
+            var version = serverListElement.transform.Find("version").GetComponent<Text>();
             if (FastLinkPlugin.HideIP.Value == FastLinkPlugin.Toggle.On)
             {
-                serverListElement.transform.Find("version").GetComponent<Text>().text = "Hidden";
-                serverListElement.transform.Find("players").GetComponent<Text>().text = "";
+                modifiers.text = "Hidden";
+                version.text = "";
             }
             else
             {
-                serverListElement.transform.Find("version").GetComponent<Text>().text = server.address;
-                serverListElement.transform.Find("players").GetComponent<Text>().text = server.port.ToString();
+                modifiers.text = server.address;
+                version.text = server.port.ToString();
             }
-            serverListElement.transform.Find("Private").gameObject
-                .SetActive(server.password.Length > 1);
-            serverListElement.transform.Find("PVP").gameObject
-                .SetActive(server.ispvp);
-            serverListElement.transform.Find("crossplay").gameObject
-                .SetActive(server.iscrossplay);
+
+            serverListElement.transform.Find("Private").gameObject.SetActive(server.password.Length > 1);
+            serverListElement.transform.Find("PVP").gameObject.SetActive(server.ispvp);
+            serverListElement.transform.Find("crossplay").gameObject.SetActive(server.iscrossplay);
             Transform target = serverListElement.transform.Find("selected");
 
             bool flag = MJoinServer != null && MJoinServer.Equals(server);
@@ -249,8 +255,7 @@ public static class Functions
 
         SteamNetworkingIPAddr networkingIpAddr = new();
         networkingIpAddr.SetIPv6(address.GetAddressBytes(), port);
-        ZSteamMatchmaking.instance.m_joinData =
-            (ServerJoinData)new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port);
+        ZSteamMatchmaking.instance.m_joinData = (ServerJoinData)new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port);
 
         /*ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
         ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/
@@ -397,10 +402,9 @@ public static class Functions
 
         GUILayout.EndVertical();
     }
-    
+
     private static void DoQuickLoad(string fileName, FileHelpers.FileSource fileSource)
     {
-
         string worldName = PlayerPrefs.GetString("world");
         Game.SetProfile(fileName, fileSource);
 

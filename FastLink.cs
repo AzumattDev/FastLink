@@ -19,7 +19,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.3.7";
+    internal const string ModVersion = "1.3.8";
     internal const string Author = "Azumatt";
     private const string ModGUID = Author + "." + ModName;
     private static string ConfigFileName = ModGUID + ".cfg";
@@ -56,8 +56,12 @@ public partial class FastLinkPlugin : BaseUnityPlugin
         HideIP = Config.Bind("General", "Hide the IP in the panel", Toggle.Off, new ConfigDescription("Turn on to hide the IP in the connection panel at the main menu. Also hides it in the tooltip"));
         HideIP.SettingChanged += (_, _) => ReadNewServers(null!, null!);
         UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f),
-            new ConfigDescription("Sets the anchor position of the UI"));
+            new ConfigDescription("Sets the anchor position of the UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available."));
         UIAnchor.SettingChanged += SaveAndReset;
+        
+        MerchUIAnchor = Config.Bind("UI", "Position of the Merch UI", new Vector2(-121f, -89f),
+            new ConfigDescription("Sets the anchor position of the Merch UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available. Vanilla is -200, -155"));
+        MerchUIAnchor.SettingChanged += SaveAndReset;
 
         LocalScale = Config.Bind("UI", "LocalScale of the UI", new Vector3(1f, 1f, 1f),
             new ConfigDescription(
@@ -151,8 +155,8 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     private void SaveAndReset(object sender, EventArgs e)
     {
         Config.Save();
-        SetupGui.FastlinkRootGo.GetComponent<RectTransform>().anchoredPosition =
-            new Vector2(UIAnchor.Value.x, UIAnchor.Value.y);
+        SetupGui.FastlinkRootGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(UIAnchor.Value.x, UIAnchor.Value.y);
+        SetupGui.MerchRootGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(MerchUIAnchor.Value.x, MerchUIAnchor.Value.y);
         SetupGui.Fastlink.gameObject.transform.localScale = LocalScale.Value;
     }
 
@@ -177,6 +181,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     #region ConfigOptions
 
     public static ConfigEntry<Vector2> UIAnchor = null!;
+    public static ConfigEntry<Vector2> MerchUIAnchor = null!;
     public static ConfigEntry<Vector3> LocalScale = null!;
     public static ConfigEntry<Toggle> Sort = null!;
     public static ConfigEntry<Toggle> HideIP = null!;

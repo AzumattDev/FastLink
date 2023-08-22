@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using FastLink.Util;
 using HarmonyLib;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -16,10 +17,11 @@ internal class SetupGui
     public static GameObject Fastlink = null!;
     public static GameObject FastlinkTooltip = null!;
     public static GameObject FastlinkRootGo = null!;
+    public static GameObject MerchRootGo = null!;
     public static readonly List<Definition> MServerList = new();
     public static Definition? MJoinServer = new();
     public static readonly List<GameObject> MServerListElements = new();
-    public static Text? MServerCount;
+    public static TextMeshProUGUI? MServerCount;
     public static GameObject MServerListElement = new();
     public static float m_serverListElementStep = 28f;
     public static RectTransform MServerListRoot = new();
@@ -41,17 +43,17 @@ internal class SetupGui
         FastlinkRootGo.AddComponent<DragControl>();
         FastlinkRootGo.transform.SetParent(GameObject.Find("GuiRoot/GUI/StartGui").transform);
 
-        Fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject,
-            FastlinkRootGo.transform);
+        Fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject, FastlinkRootGo.transform);
         Object.DestroyImmediate(Fastlink.gameObject.GetComponent<TabHandler>());
         Object.DestroyImmediate(Fastlink.gameObject.GetComponent<ServerList>());
         Object.DestroyImmediate(Fastlink.gameObject.GetComponent<UIGamePad>());
         Fastlink.transform.SetParent(FastlinkRootGo.transform);
         Fastlink.gameObject.transform.localScale = FastLinkPlugin.LocalScale.Value;
-        FastlinkRootGo.transform.position =
-            new Vector2(FastLinkPlugin.UIAnchor.Value.x, FastLinkPlugin.UIAnchor.Value.y);
+        FastlinkRootGo.transform.position = new Vector2(FastLinkPlugin.UIAnchor.Value.x, FastLinkPlugin.UIAnchor.Value.y);
         if (!Fastlink.activeSelf)
             Fastlink.SetActive(true);
+
+        Functions.MerchButton();
 
         /* Set Mod Text */
         Fastlink.transform.Find("topic").GetComponent<Text>().text = "Fast Link";
