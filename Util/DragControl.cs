@@ -34,7 +34,6 @@ public class MerchAreaDragControl : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         dragRectTransform = GetComponent<RectTransform>();
         button = GetComponent<Button>();
-        FastLinkPlugin.FastLinkLogger.LogError(dragRectTransform.anchoredPosition.ToString());
         dragRectTransform.anchoredPosition = FastLinkPlugin.MerchUIAnchor.Value;
     }
 
