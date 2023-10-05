@@ -56,7 +56,7 @@ internal class SetupGui
         Functions.MerchButton();
 
         /* Set Mod Text */
-        Fastlink.transform.Find("topic").GetComponent<Text>().text = "Fast Link";
+        Fastlink.transform.Find("topic").GetComponent<TMP_Text>().text = "Fast Link";
         FastlinkTooltip.gameObject.SetActive(false); // disable it otherwise it always shows on the side.
 
         try

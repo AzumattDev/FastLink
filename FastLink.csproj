@@ -82,6 +82,9 @@
         <Reference Include="PlayFab">
             <HintPath>$(PublicizedAssembliesPath)\PlayFab_publicized.dll</HintPath>
         </Reference>
+        <Reference Include="ui_lib">
+            <HintPath>$(PublicizedAssembliesPath)\ui_lib_publicized.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>

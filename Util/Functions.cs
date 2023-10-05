@@ -133,15 +133,15 @@ public static class Functions
             Definition server = MServerList[index];
             GameObject? serverListElement = MServerListElements?[index];
             if (serverListElement == null) continue;
-            serverListElement.GetComponentInChildren<Text>().text = index + 1 + ". " + server.serverName;
-            serverListElement.GetComponentInChildren<UITooltip>().m_tooltipPrefab = FastlinkTooltip;
+            serverListElement.GetComponentInChildren<TMP_Text>().text = index + 1 + ". " + server.serverName;
+            //serverListElement.GetComponentInChildren<UITooltip>().m_tooltipPrefab = FastlinkTooltip;
             serverListElement.GetComponentInChildren<UITooltip>().Set(server.serverName, server.ToString());
             //serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
 
             // Cache the text elements
-            var players = serverListElement.transform.Find("players").GetComponent<Text>().text = string.Empty;
-            var modifiers = serverListElement.transform.Find("modifiers").GetComponent<Text>();
-            var version = serverListElement.transform.Find("version").GetComponent<Text>();
+            var players = serverListElement.transform.Find("players").GetComponent<TMP_Text>().text = string.Empty;
+            var modifiers = serverListElement.transform.Find("modifiers").GetComponent<TMP_Text>();
+            var version = serverListElement.transform.Find("version").GetComponent<TMP_Text>();
             if (FastLinkPlugin.HideIP.Value == FastLinkPlugin.Toggle.On)
             {
                 modifiers.text = "Hidden";
