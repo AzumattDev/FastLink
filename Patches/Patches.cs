@@ -64,7 +64,7 @@ internal class PatchPasswordPrompt
 
 #else
 
-            var printedchars = str.Aggregate("", (current, characters) => current + '*');
+            var printedchars = str.Aggregate("", (current, characters) => $"{current}*");
             FastLinkPlugin.FastLinkLogger.LogDebug($"Authenticating with saved password...REDACTED: {printedchars}");
 #endif
             __instance.m_connectingDialog.gameObject.SetActive(false);

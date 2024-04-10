@@ -65,7 +65,7 @@ internal class SetupGui
         }
         catch (Exception e)
         {
-            FastLinkPlugin.FastLinkLogger.LogError("Problem in the destroying of things!" + e);
+            FastLinkPlugin.FastLinkLogger.LogError($"Problem in the destroying of things!{e}");
             throw;
         }
 

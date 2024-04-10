@@ -8,8 +8,7 @@ namespace FastLink.Patches;
 
 internal class Servers
 {
-    internal static string ConfigFileName = FastLinkPlugin.Author + "." +
-                                            $"{FastLinkPlugin.ModName}_servers.yml";
+    internal static string ConfigFileName = $"{FastLinkPlugin.Author}.{FastLinkPlugin.ModName}_servers.yml";
 
     public static string ConfigPath = Paths.ConfigPath +
                                       Path.DirectorySeparatorChar + ConfigFileName;

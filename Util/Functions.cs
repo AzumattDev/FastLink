@@ -52,14 +52,10 @@ public static class Functions
         FastLinkPlugin.FastLinkLogger.LogDebug("POPULATE SERVER LIST");
         MServerListElement = linkpanel.transform.Find("ServerList/ServerElementSteamCrossplay").gameObject;
         linkpanel.transform.Find("ServerList").gameObject.GetComponent<Image>().enabled = false;
-        GameObject? listRoot = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ServerList/ListRoot")
-            .gameObject;
+        GameObject? listRoot = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ServerList/ListRoot").gameObject;
         listRoot.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
-        MServerListRoot = listRoot
-            .GetComponent<RectTransform>();
-        listRoot.gameObject.GetComponent<RectTransform>().pivot =
-            new Vector2(listRoot.gameObject.GetComponent<RectTransform>().pivot.x,
-                1); // Literally here just because Valheim's UI forces scrollbar to halfway.
+        MServerListRoot = listRoot.GetComponent<RectTransform>();
+        listRoot.gameObject.GetComponent<RectTransform>().pivot = new Vector2(listRoot.gameObject.GetComponent<RectTransform>().pivot.x, 1); // Literally here just because Valheim's UI forces scrollbar to halfway.
         MServerCount = linkpanel.transform.Find("serverCount").gameObject.GetComponent<TextMeshProUGUI>();
         MServerListBaseSize = MServerListRoot.rect.height;
     }
@@ -94,8 +90,7 @@ public static class Functions
 
         if (MJoinServer != null && !MServerList.Contains(MJoinServer))
         {
-            FastLinkPlugin.FastLinkLogger.LogDebug(
-                "Server list does not contain selected server, clearing selected server");
+            FastLinkPlugin.FastLinkLogger.LogDebug("Server list does not contain selected server, clearing selected server");
             MJoinServer = null;
         }
 
@@ -133,7 +128,7 @@ public static class Functions
             Definition server = MServerList[index];
             GameObject? serverListElement = MServerListElements?[index];
             if (serverListElement == null) continue;
-            serverListElement.GetComponentInChildren<TMP_Text>().text = index + 1 + ". " + server.serverName;
+            serverListElement.GetComponentInChildren<TMP_Text>().text = $"{index + 1}. {server.serverName}";
             //serverListElement.GetComponentInChildren<UITooltip>().m_tooltipPrefab = FastlinkTooltip;
             serverListElement.GetComponentInChildren<UITooltip>().Set(server.serverName, server.ToString());
             //serverListElement.GetComponentInChildren<UITooltip>().m_text = server.ToString();
@@ -178,12 +173,11 @@ public static class Functions
         }
         catch (FormatException)
         {
-            FastLinkPlugin.FastLinkLogger.LogDebug("Resolving: " + server.address);
+            FastLinkPlugin.FastLinkLogger.LogDebug($"Resolving: {server.address}");
             try
             {
                 ResolveTask = Dns.GetHostEntryAsync(server.address);
-                FastLinkPlugin.FastLinkLogger.LogDebug("Resolving after task: " +
-                                                       ResolveTask.Result.AddressList[0]);
+                FastLinkPlugin.FastLinkLogger.LogDebug($"Resolving after task: {ResolveTask.Result.AddressList[0]}");
             }
             catch (Exception)
             {
@@ -214,7 +208,7 @@ public static class Functions
             }
             else if (ResolveTask.IsCompleted)
             {
-                FastLinkPlugin.FastLinkLogger.LogDebug("COMPLETE: " + server.address);
+                FastLinkPlugin.FastLinkLogger.LogDebug($"COMPLETE: {server.address}");
                 foreach (IPAddress address in ResolveTask.Result.AddressList)
                 {
                     FastLinkPlugin.FastLinkLogger.LogDebug($"Resolved Completed: {address}");
@@ -239,8 +233,7 @@ public static class Functions
 
     private static bool JoinServer(IPAddress address, ushort port)
     {
-        string target = (address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}") +
-                        $":{port}";
+        string target = $"{(address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}")}:{port}";
         FastLinkPlugin.FastLinkLogger.LogDebug($"Server and Port passed into JoinServer: {target}");
 
         if (address.AddressFamily == AddressFamily.InterNetwork)
@@ -261,6 +254,68 @@ public static class Functions
         ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/
         return true;
     }
+
+    /*private static bool JoinServer(IPAddress address, ushort port)
+    {
+        string target = $"{(address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}")}:{port}";
+        FastLinkPlugin.FastLinkLogger.LogDebug($"Server and Port passed into JoinServer: {target}");
+
+        if (address.AddressFamily == AddressFamily.InterNetwork)
+        {
+            address = address.MapToIPv6();
+        }
+
+        if (address.AddressFamily != AddressFamily.InterNetworkV6)
+        {
+            return false;
+        }
+
+        // Assuming instance of your join data structure
+        var myJoinData = GetMyJoinData(); // Replace with actual method to get join data
+
+        bool isPlayFabServer = myJoinData is ServerJoinDataPlayFabUser;
+        bool isSteamServer = myJoinData is ServerJoinDataSteamUser;
+        bool isDedicatedServer = myJoinData is ServerJoinDataDedicated;
+
+        if (isPlayFabServer)
+        {
+            // PlayFab server joining logic
+            var playFabJoinData = myJoinData as ServerJoinDataPlayFabUser;
+            ZNet.SetServerHost(playFabJoinData.m_remotePlayerId);
+        }
+        else if (isSteamServer)
+        {
+            // Steam server joining logic
+            var steamJoinData = myJoinData as ServerJoinDataSteamUser;
+            ZNet.SetServerHost((ulong)steamJoinData.m_joinUserID);
+        }
+        else if (isDedicatedServer)
+        {
+            // Dedicated server joining logic
+            var dedicatedJoinData = myJoinData as ServerJoinDataDedicated;
+            if (dedicatedJoinData.IsValid())
+            {
+                // Here, implement the logic for dedicated server joining,
+                // similar to what you see in the base game's JoinServer method.
+                // This might involve calling PlayFab matchmaking APIs and handling the response.
+            }
+            else
+            {
+                return false; // Invalid server data
+            }
+        }
+        else
+        {
+            FastLinkPlugin.FastLinkLogger.LogError("Unknown server data type");
+            return false;
+        }
+
+        // Additional code here for transitioning scenes, logging, etc., as needed.
+        // ...
+
+        return true;
+    }*/
+
 
     public static string? CurrentPass() => Connecting?.password;
 
@@ -299,7 +354,7 @@ public static class Functions
         }
         catch (Exception e)
         {
-            FastLinkPlugin.FastLinkLogger.LogDebug("The issues were found here: " + e);
+            FastLinkPlugin.FastLinkLogger.LogDebug($"The issues were found here: {e}");
         }
 
         return 1;
@@ -335,7 +390,7 @@ public static class Functions
         }
         catch (Exception e)
         {
-            FastLinkPlugin.FastLinkLogger.LogError("Error saving servers: " + e);
+            FastLinkPlugin.FastLinkLogger.LogError($"Error saving servers: {e}");
         }
     }
 
@@ -432,7 +487,7 @@ public static class Functions
         FastLinkPlugin.FastLinkLogger.LogDebug($"Set server");
         try
         {
-            string eventLabel = "open:" + isOn2.ToString() + ",public:" + isOn.ToString();
+            string eventLabel = $"open:{isOn2},public:{isOn}";
             Gogan.LogEvent("Menu", "WorldStart", eventLabel, 0L);
         }
         catch

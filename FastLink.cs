@@ -18,10 +18,10 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.4.0";
+    internal const string ModVersion = "1.4.1";
     internal const string Author = "Azumatt";
-    private const string ModGUID = Author + "." + ModName;
-    private static string ConfigFileName = ModGUID + ".cfg";
+    private const string ModGUID = $"{Author}.{ModName}";
+    private static string ConfigFileName = $"{ModGUID}.cfg";
     private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
 
     internal static FastLinkPlugin instance = null!;
@@ -48,32 +48,22 @@ public partial class FastLinkPlugin : BaseUnityPlugin
                     Description = $"Edit the {Servers.ConfigFileName} directly from the configuration manager.",
                     CustomDrawer = Functions.EditServersButton
                 }));
-        Sort = Config.Bind("General", "Sort List Alphabetically", Toggle.On,
-            new ConfigDescription(
-                "Sorts the Server List Alphabetically. If disabled, the list will be displayed in the same order as the file. NOTE: If you are using colors in your server name, if on, it will still sort but the color you use will have an affect on on the order."));
+        Sort = Config.Bind("General", "Sort List Alphabetically", Toggle.On, new ConfigDescription("Sorts the Server List Alphabetically. If disabled, the list will be displayed in the same order as the file. NOTE: If you are using colors in your server name, if on, it will still sort but the color you use will have an affect on on the order."));
         Sort.SettingChanged += (_, _) => ReadNewServers(null!, null!);        
         HideIP = Config.Bind("General", "Hide the IP in the panel", Toggle.Off, new ConfigDescription("Turn on to hide the IP in the connection panel at the main menu. Also hides it in the tooltip"));
         HideIP.SettingChanged += (_, _) => ReadNewServers(null!, null!);
-        UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f),
-            new ConfigDescription("Sets the anchor position of the UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available."));
+        UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f), new ConfigDescription("Sets the anchor position of the UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available."));
         UIAnchor.SettingChanged += SaveAndReset;
         
-        MerchUIAnchor = Config.Bind("UI", "Position of the Merch UI", new Vector2(-121f, -89f),
-            new ConfigDescription("Sets the anchor position of the Merch UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available. Vanilla is -200, -155"));
+        MerchUIAnchor = Config.Bind("UI", "Position of the Merch UI", new Vector2(-121f, -89f), new ConfigDescription("Sets the anchor position of the Merch UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available. Vanilla is -200, -155"));
         MerchUIAnchor.SettingChanged += SaveAndReset;
 
-        LocalScale = Config.Bind("UI", "LocalScale of the UI", new Vector3(1f, 1f, 1f),
-            new ConfigDescription(
-                "Sets the local scale the UI. This is overall size of the UI. Defaults to vanilla JoinGame UI size. I prefer 0.85, 0.85, 0.85"));
+        LocalScale = Config.Bind("UI", "LocalScale of the UI", new Vector3(1f, 1f, 1f), new ConfigDescription("Sets the local scale the UI. This is overall size of the UI. Defaults to vanilla JoinGame UI size. I prefer 0.85, 0.85, 0.85"));
         LocalScale.SettingChanged += SaveAndReset;
 
-        ShowPasswordPrompt = Config.Bind("General", "Show Password Prompt", Toggle.Off,
-            new ConfigDescription(
-                "Set to true if you want to still show the password prompt to the user. This is for servers that have a password but don't wish to use the file to keep the password."));
+        ShowPasswordPrompt = Config.Bind("General", "Show Password Prompt", Toggle.Off, new ConfigDescription("Set to true if you want to still show the password prompt to the user. This is for servers that have a password but don't wish to use the file to keep the password."));
 
-        ShowPasswordInTooltip = Config.Bind("General", "Show Password In Tooltip", Toggle.Off,
-            new ConfigDescription(
-                "Set to true if you want to show the password inside the tooltip hover."));
+        ShowPasswordInTooltip = Config.Bind("General", "Show Password In Tooltip", Toggle.Off, new ConfigDescription("Set to true if you want to show the password inside the tooltip hover."));
         ShowPasswordInTooltip.SettingChanged += (_, _) => ReadNewServers(null!, null!);
         LoadTooltipAsset("fastlink");
         _harmony.PatchAll();
@@ -170,9 +160,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     private static AssetBundle GetAssetBundleFromResources(string filename)
     {
         Assembly execAssembly = Assembly.GetExecutingAssembly();
-        string resourceName = execAssembly.GetManifestResourceNames()
-            .Single(str => str.EndsWith(filename));
-
+        string resourceName = execAssembly.GetManifestResourceNames().Single(str => str.EndsWith(filename));
         using Stream? stream = execAssembly.GetManifestResourceStream(resourceName);
         return AssetBundle.LoadFromStream(stream);
     }
