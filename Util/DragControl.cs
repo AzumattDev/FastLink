@@ -28,24 +28,26 @@ public class DragControl : MonoBehaviour, IDragHandler, IEndDragHandler
 public class MerchAreaDragControl : MonoBehaviour, IDragHandler, IEndDragHandler
 {
     [SerializeField] private RectTransform dragRectTransform = new();
-    [SerializeField] private Button button = null!;
+    [SerializeField] private Button[] buttons = null!;
 
     private void Start()
     {
         dragRectTransform = GetComponent<RectTransform>();
-        button = GetComponent<Button>();
+        buttons = GetComponentsInChildren<Button>();
         dragRectTransform.anchoredPosition = FastLinkPlugin.MerchUIAnchor.Value;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        button.interactable = false;
+        foreach (Button button in buttons)
+            button.interactable = false;
         dragRectTransform.anchoredPosition += eventData.delta;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        button.interactable = true;
+        foreach (Button button in buttons)
+            button.interactable = true;
         FastLinkPlugin.MerchUIAnchor.Value = dragRectTransform.anchoredPosition;
     }
 }

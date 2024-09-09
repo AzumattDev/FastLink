@@ -18,7 +18,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.4.2";
+    internal const string ModVersion = "1.4.3";
     internal const string Author = "Azumatt";
     private const string ModGUID = $"{Author}.{ModName}";
     private static string ConfigFileName = $"{ModGUID}.cfg";
@@ -55,7 +55,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
         UIAnchor = Config.Bind("UI", "Position of the UI", new Vector2(429f, 172f), new ConfigDescription("Sets the anchor position of the UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available."));
         UIAnchor.SettingChanged += SaveAndReset;
         
-        MerchUIAnchor = Config.Bind("UI", "Position of the Merch UI", new Vector2(-121f, -89f), new ConfigDescription("Sets the anchor position of the Merch UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available. Vanilla is -200, -155"));
+        MerchUIAnchor = Config.Bind("UI", "Position of the Merch UI", new Vector2(-152f, 270f), new ConfigDescription("Sets the anchor position of the Merch UI. You can drag it by left clicking on the title and dragging. Manual setting here is also available. Vanilla is -200, -155"));
         MerchUIAnchor.SettingChanged += SaveAndReset;
 
         LocalScale = Config.Bind("UI", "LocalScale of the UI", new Vector3(1f, 1f, 1f), new ConfigDescription("Sets the local scale the UI. This is overall size of the UI. Defaults to vanilla JoinGame UI size. I prefer 0.85, 0.85, 0.85"));

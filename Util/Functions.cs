@@ -39,7 +39,15 @@ public static class Functions
 
     internal static void MerchButton()
     {
-        MerchRootGo = GameObject.Find("GUI/StartGui/Menu/StartGui_MerchButton").gameObject;
+        try
+        {
+            MerchRootGo = GameObject.Find("GUI/StartGui/Menu/TopRight").gameObject;
+        }
+        catch (Exception e)
+        {
+            FastLinkPlugin.FastLinkLogger.LogError($"Error finding Merch button: {e}");
+        }
+
         if (MerchRootGo != null)
         {
             MerchRootGo.AddComponent<MerchAreaDragControl>();
