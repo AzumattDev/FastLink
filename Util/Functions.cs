@@ -27,10 +27,14 @@ public static class Functions
         Object.DestroyImmediate(thing.transform.Find("Join").gameObject);
 
         // Destroy the new tab buttons for now
-        Object.DestroyImmediate(thing.transform.Find("FavoriteTab").gameObject);
-        Object.DestroyImmediate(thing.transform.Find("RecentTab").gameObject);
-        Object.DestroyImmediate(thing.transform.Find("FriendsTab").gameObject);
-        Object.DestroyImmediate(thing.transform.Find("CommunityTab").gameObject);
+        // Destroy all ServerListTab(Clone) objects
+        foreach (Transform child in thing.transform)
+        {
+            if (child.name.StartsWith("ServerListTab(Clone)"))
+            {
+                Object.DestroyImmediate(child.gameObject);
+            }
+        }
 
         // Destroy the new buttons for now
         Object.DestroyImmediate(thing.transform.Find("Add server").gameObject);
@@ -58,7 +62,7 @@ public static class Functions
     internal static void PopulateServerList(GameObject linkpanel)
     {
         FastLinkPlugin.FastLinkLogger.LogDebug("POPULATE SERVER LIST");
-        MServerListElement = linkpanel.transform.Find("ServerList/ServerElementSteamCrossplay").gameObject;
+        MServerListElement = linkpanel.transform.Find("ServerList/ServerElement").gameObject;
         linkpanel.transform.Find("ServerList").gameObject.GetComponent<Image>().enabled = false;
         GameObject? listRoot = GameObject.Find("GuiRoot/GUI/StartGui/FastLink/JoinPanel(Clone)/ServerList/ListRoot").gameObject;
         listRoot.gameObject.transform.localScale = new Vector3(1, (float)0.8, 1);
@@ -159,6 +163,7 @@ public static class Functions
             serverListElement.transform.Find("Private").gameObject.SetActive(server.password.Length > 1);
             serverListElement.transform.Find("PVP").gameObject.SetActive(server.ispvp);
             serverListElement.transform.Find("crossplay").gameObject.SetActive(server.iscrossplay);
+            serverListElement.transform.Find("status").gameObject.SetActive(false);
             Transform target = serverListElement.transform.Find("selected");
 
             bool flag = MJoinServer != null && MJoinServer.Equals(server);
@@ -256,7 +261,7 @@ public static class Functions
 
         SteamNetworkingIPAddr networkingIpAddr = new();
         networkingIpAddr.SetIPv6(address.GetAddressBytes(), port);
-        ZSteamMatchmaking.instance.m_joinData = (ServerJoinData)new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port);
+        ZSteamMatchmaking.instance.m_joinData = new ServerJoinData(new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port));
 
         /*ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
         ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/

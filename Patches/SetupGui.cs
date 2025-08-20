@@ -45,7 +45,7 @@ internal class SetupGui
 
         Fastlink = Object.Instantiate(GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject, FastlinkRootGo.transform);
         Object.DestroyImmediate(Fastlink.gameObject.GetComponent<TabHandler>());
-        Object.DestroyImmediate(Fastlink.gameObject.GetComponent<ServerList>());
+        Object.DestroyImmediate(Fastlink.gameObject.GetComponent<ServerListGui>());
         Object.DestroyImmediate(Fastlink.gameObject.GetComponent<UIGamePad>());
         Fastlink.transform.SetParent(FastlinkRootGo.transform);
         Fastlink.gameObject.transform.localScale = FastLinkPlugin.LocalScale.Value;

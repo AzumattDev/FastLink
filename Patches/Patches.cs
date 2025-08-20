@@ -26,7 +26,7 @@ static class FejdStartupStartPatch
         // Check backend before applying the patch
         FastLinkPlugin.instance._harmony.Patch(ZNet.m_onlineBackend == OnlineBackendType.PlayFab
                 ? AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.OnFailed))
-                : AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.OnJoinServerFailed)),
+                : AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.OnPingFailed)),
             postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupStartPatch), nameof(Failed))));
     }
 
