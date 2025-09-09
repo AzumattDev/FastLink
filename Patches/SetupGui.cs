@@ -17,7 +17,6 @@ internal class SetupGui
     public static GameObject Fastlink = null!;
     public static GameObject FastlinkTooltip = null!;
     public static GameObject FastlinkRootGo = null!;
-    public static GameObject MerchRootGo = null!;
     public static readonly List<Definition> MServerList = new();
     public static Definition? MJoinServer = new();
     public static readonly List<GameObject> MServerListElements = new();
@@ -53,7 +52,6 @@ internal class SetupGui
         if (!Fastlink.activeSelf)
             Fastlink.SetActive(true);
 
-        Functions.MerchButton();
 
         /* Set Mod Text */
         Fastlink.transform.Find("topic").GetComponent<TMP_Text>().text = "Fast Link";
@@ -71,5 +69,10 @@ internal class SetupGui
 
         Functions.PopulateServerList(Fastlink);
         Functions.UpdateServerList();
+        // Make sure Steam matchmaking singleton exists (Valheim usually does this, but be safe here)
+        if (ZSteamMatchmaking.m_instance == null)
+        {
+            ZSteamMatchmaking.Initialize();
+        }
     }
 }

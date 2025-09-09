@@ -86,6 +86,9 @@
         <Reference Include="gui_framework">
             <HintPath>$(PublicizedAssembliesPath)\gui_framework_publicized.dll</HintPath>
         </Reference>
+        <Reference Include="Splatform">
+            <HintPath>$(PublicizedAssembliesPath)\Splatform_publicized.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
@@ -139,6 +142,7 @@
     <ItemGroup>
         <Compile Include="Definition.cs"/>
         <Compile Include="FastLink.cs"/>
+        <Compile Include="Net\ServerStatusService.cs" />
         <Compile Include="Patches\Patches.cs"/>
         <Compile Include="Patches\SetupGui.cs"/>
         <Compile Include="Patches\Servers.cs"/>

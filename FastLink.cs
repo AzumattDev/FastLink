@@ -145,7 +145,6 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     {
         Config.Save();
         SetupGui.FastlinkRootGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(UIAnchor.Value.x, UIAnchor.Value.y);
-        SetupGui.MerchRootGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(MerchUIAnchor.Value.x, MerchUIAnchor.Value.y);
         SetupGui.Fastlink.gameObject.transform.localScale = LocalScale.Value;
     }
 

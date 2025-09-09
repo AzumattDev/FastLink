@@ -15,6 +15,64 @@ namespace FastLink.Util;
 
 public static class Functions
 {
+    internal static void ApplyStatusToRow(int index, Definition server, ServerListEntryData entry)
+    {
+        if (index < 0 || index >= SetupGui.MServerListElements.Count) return;
+        var row = SetupGui.MServerListElements[index];
+        if (row == null) return;
+
+        // Server name (left text in vanilla UI)
+        var nameText = row.GetComponentInChildren<TMPro.TMP_Text>();
+        if (nameText == null) return;
+        nameText.text = $"{index + 1}. {entry.m_serverName}";
+        row.GetComponentInChildren<TMP_Text>().text = $"{index + 1}. {server.serverName}";
+        //serverListElement.GetComponentInChildren<UITooltip>().m_tooltipPrefab = FastlinkTooltip;
+        row.GetComponentInChildren<UITooltip>().Set(server.serverName, server.ToString());
+
+
+        // players
+        var playersText = row.transform.Find("players").GetComponent<TMPro.TMP_Text>();
+        if (entry.IsOnline && entry.HasMatchmakingData)
+            playersText.text = $"{entry.m_playerCount} / {entry.m_playerLimit}";
+        else if (entry.IsAvailable)
+            playersText.text = "—";
+        else
+            playersText.text = ""; // unknown / not available
+
+        // version (right text in vanilla UI)
+        var versionText = row.transform.Find("version").GetComponent<TMPro.TMP_Text>();
+        if (entry.HasMatchmakingData)
+            versionText.text = $"{entry.m_gameVersion}";
+        else
+            versionText.text = FastLinkPlugin.HideIP.Value == FastLinkPlugin.Toggle.On ? "" : server.port.ToString();
+
+        // modifiers (left small text). Keep your address, unless hidden.
+        var modifiersText = row.transform.Find("modifiers").GetComponent<TMPro.TMP_Text>();
+        if (FastLinkPlugin.HideIP.Value == FastLinkPlugin.Toggle.On)
+            modifiersText.text = "Hidden";
+        else
+            modifiersText.text = server.address;
+
+        // private/password icon: prefer live info; fall back to file
+        row.transform.Find("Private").gameObject.SetActive((entry.HasMatchmakingData && entry.IsPasswordProtected) || (!entry.HasMatchmakingData && server.password.Length > 1));
+
+        // crossplay icon: you control via config; dedicated internet pings won't report crossplay in Valheim
+        row.transform.Find("crossplay").gameObject.SetActive(entry.IsCrossplay);
+
+        // status “dot” (if your prefab has one). If yours is just an Image, we can toggle it when online.
+        var status = row.transform.Find("status");
+        if (status)
+        {
+            status.gameObject.SetActive(true);
+            if (ServerListGui.s_instance == null && ServerListGui.s_instance != GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject.GetComponent<ServerListGui>())
+            {
+                ServerListGui.s_instance = GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject.GetComponent<ServerListGui>();
+            }
+
+            status.GetComponent<Image>().sprite = !entry.HasMatchmakingData ? ServerListGui.s_instance?.m_connectIcons.m_trying : (!entry.IsOnline ? (!entry.IsAvailable ? ServerListGui.s_instance?.m_connectIcons.m_unknown : ServerListGui.s_instance?.m_connectIcons.m_failed) : ServerListGui.s_instance?.m_connectIcons.m_success);
+        }
+    }
+
     internal static void DestroyAll(GameObject thing)
     {
         //Object.DestroyImmediate(thing.transform.Find("Join manually").gameObject);
@@ -39,23 +97,6 @@ public static class Functions
         // Destroy the new buttons for now
         Object.DestroyImmediate(thing.transform.Find("Add server").gameObject);
         Object.DestroyImmediate(thing.transform.Find("FavoriteButton").gameObject);
-    }
-
-    internal static void MerchButton()
-    {
-        try
-        {
-            MerchRootGo = GameObject.Find("GUI/StartGui/Menu/TopRight").gameObject;
-        }
-        catch (Exception e)
-        {
-            FastLinkPlugin.FastLinkLogger.LogError($"Error finding Merch button: {e}");
-        }
-
-        if (MerchRootGo != null)
-        {
-            MerchRootGo.AddComponent<MerchAreaDragControl>();
-        }
     }
 
 
@@ -166,6 +207,8 @@ public static class Functions
             serverListElement.transform.Find("status").gameObject.SetActive(false);
             Transform target = serverListElement.transform.Find("selected");
 
+            FastLink.Net.ServerStatusService.RequestStatus(server, index, ApplyStatusToRow);
+
             bool flag = MJoinServer != null && MJoinServer.Equals(server);
             target.gameObject.SetActive(flag);
         }
@@ -244,7 +287,7 @@ public static class Functions
         }
     }
 
-    private static bool JoinServer(IPAddress address, ushort port)
+    /*private static bool JoinServer(IPAddress address, ushort port)
     {
         string target = $"{(address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}")}:{port}";
         FastLinkPlugin.FastLinkLogger.LogDebug($"Server and Port passed into JoinServer: {target}");
@@ -264,9 +307,30 @@ public static class Functions
         ZSteamMatchmaking.instance.m_joinData = new ServerJoinData(new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port));
 
         /*ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
-        ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/
+        ZSteamMatchmaking.instance.m_haveJoinAddr = true;#1#
+        return true;
+    }*/
+
+    private static bool JoinServer(IPAddress address, ushort port)
+    {
+        // Prefer IPv4. Convert mapped IPv6 back to v4.
+        if (address.AddressFamily == AddressFamily.InterNetworkV6 && address.IsIPv4MappedToIPv6)
+            address = address.MapToIPv4();
+
+        if (address.AddressFamily != AddressFamily.InterNetwork)
+            return false;
+
+        // SetIPv4 expects network-order (big-endian) value
+        uint networkOrder = (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(address.GetAddressBytes(), 0));
+
+        var dst = new SteamNetworkingIPAddr();
+        dst.SetIPv4(networkOrder, port);
+
+        ZSteamMatchmaking.instance.m_joinData = new ServerJoinData(new ServerJoinDataDedicated(dst.GetIPv4(), dst.m_port));
+
         return true;
     }
+
 
     /*private static bool JoinServer(IPAddress address, ushort port)
     {
