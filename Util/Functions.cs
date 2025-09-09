@@ -287,7 +287,7 @@ public static class Functions
         }
     }
 
-    /*private static bool JoinServer(IPAddress address, ushort port)
+    private static bool JoinServer(IPAddress address, ushort port)
     {
         string target = $"{(address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}")}:{port}";
         FastLinkPlugin.FastLinkLogger.LogDebug($"Server and Port passed into JoinServer: {target}");
@@ -307,11 +307,11 @@ public static class Functions
         ZSteamMatchmaking.instance.m_joinData = new ServerJoinData(new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port));
 
         /*ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
-        ZSteamMatchmaking.instance.m_haveJoinAddr = true;#1#
+        ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/
         return true;
-    }*/
+    }
 
-    private static bool JoinServer(IPAddress address, ushort port)
+    /*private static bool JoinServer(IPAddress address, ushort port)
     {
         // Prefer IPv4. Convert mapped IPv6 back to v4.
         if (address.AddressFamily == AddressFamily.InterNetworkV6 && address.IsIPv4MappedToIPv6)
@@ -329,7 +329,7 @@ public static class Functions
         ZSteamMatchmaking.instance.m_joinData = new ServerJoinData(new ServerJoinDataDedicated(dst.GetIPv4(), dst.m_port));
 
         return true;
-    }
+    }*/
 
 
     /*private static bool JoinServer(IPAddress address, ushort port)
