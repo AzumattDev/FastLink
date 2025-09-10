@@ -15,6 +15,179 @@ namespace FastLink.Util;
 
 public static class Functions
 {
+    internal static bool MHasFocus = false;
+    internal static int MSelectedIndex = -1;
+    private static GameObject _panelChrome;
+    private static CanvasGroup _panelChromeCg;
+    private static FastLinkPanelPulse _panelPulse;
+    private static TMP_Text _focusHint;
+    private static readonly Color PanelLineColor = new(1f, 0.85f, 0.20f, 1f);
+    private static readonly Color FocusBarColor = new(1f, 0.85f, 0.20f, 0.95f); // gold bar
+    private static readonly Color FocusFillColor = new(1f, 0.85f, 0.20f, 0.18f); // faint gold overlay
+    private static readonly Color NameFocusedColor = Color.white;
+    private static readonly Color NameNormalColor = new(0.88f, 0.88f, 0.88f, 1f);
+
+
+    internal static void FocusFastLink(bool focus)
+    {
+        MHasFocus = focus;
+
+        if (focus)
+        {
+            if (MServerList.Count > 0 && (MSelectedIndex < 0 || MSelectedIndex >= MServerList.Count))
+                MSelectedIndex = 0;
+
+            SyncJoinDataWithSelection();
+            UpdateServerListGui(false);
+        }
+
+        UpdatePanelFocusChrome(focus); // <---- add this
+    }
+
+    internal static void MoveSelection(int delta)
+    {
+        if (!MHasFocus || MServerList.Count == 0) return;
+        int next = Mathf.Clamp((MSelectedIndex < 0 ? 0 : MSelectedIndex) + delta, 0, MServerList.Count - 1);
+        if (next == MSelectedIndex) return;
+        MSelectedIndex = next;
+        SyncJoinDataWithSelection();
+        UpdateServerListGui(true);
+    }
+
+    internal static void SubmitSelection()
+    {
+        if (!MHasFocus || MSelectedIndex < 0 || MSelectedIndex >= MServerList.Count) return;
+
+        var sel = MServerList[MSelectedIndex];
+        MJoinServer = sel;
+
+
+        Connect(new Definition
+        {
+            serverName = sel.serverName,
+            address = sel.address,
+            port = sel.port,
+            password = sel.password
+        });
+
+        UpdateServerListGui(false);
+    }
+
+    private static void SyncJoinDataWithSelection()
+    {
+        if (MSelectedIndex < 0 || MSelectedIndex >= MServerList.Count) return;
+        var def = MServerList[MSelectedIndex];
+
+        // Use the string ctor so game can resolve DNS/host later (mirrors manual-add path)
+        var dedicated = new ServerJoinDataDedicated($"{def.address}:{def.port}");
+        var join = new ServerJoinData(dedicated);
+
+        FejdStartup.instance?.SetServerToJoin(join);
+    }
+
+    public static void BuildPanelFocusChrome(GameObject panel)
+    {
+        // Clean up if rebuilt
+        if (_panelChrome) Object.Destroy(_panelChrome);
+
+        var panelRt = panel.GetComponent<RectTransform>();
+
+        // Root overlay, stretches to the whole panel, no raycasts
+        _panelChrome = new GameObject("FastLinkPanelChrome", typeof(RectTransform), typeof(CanvasGroup));
+        var chromeRt = _panelChrome.GetComponent<RectTransform>();
+        chromeRt.SetParent(panelRt.Find("ServerList"), false);
+        chromeRt.anchorMin = Vector2.zero;
+        chromeRt.anchorMax = Vector2.one;
+        chromeRt.offsetMin = Vector2.zero;
+        chromeRt.offsetMax = Vector2.zero;
+        _panelChrome.transform.SetAsLastSibling(); // draw on top
+
+        _panelChromeCg = _panelChrome.GetComponent<CanvasGroup>();
+        _panelChromeCg.interactable = false;
+        _panelChromeCg.blocksRaycasts = false;
+        _panelChromeCg.alpha = 0f;
+
+        // 4 thin edges
+        CreateEdge("Top", new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 2));
+        CreateEdge("Bottom", new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 2));
+        CreateEdge("Left", new Vector2(0, 0), new Vector2(0, 1), new Vector2(2, 0));
+        CreateEdge("Right", new Vector2(1, 0), new Vector2(1, 1), new Vector2(2, 0));
+
+        // Small hint next to the header ("topic")
+        var topic = panel.transform.Find("topic");
+        if (topic != null)
+        {
+            var hintGo = new GameObject("FastLinkGamepadHint", typeof(RectTransform), typeof(TextMeshProUGUI));
+            var hrt = hintGo.GetComponent<RectTransform>();
+            hrt.SetParent(topic, false);
+            hrt.anchoredPosition = new Vector2(0f, -44f); // a little to the right of the title
+
+            _focusHint = hintGo.GetComponent<TextMeshProUGUI>();
+            _focusHint.text = "Focused • A: Join  B/LB: Back  D-Pad/LS: Navigate";
+            _focusHint.font = topic.GetComponent<TMP_Text>().font;
+            _focusHint.fontSize = 18f;
+            _focusHint.alignment = TextAlignmentOptions.CenterGeoAligned;
+            _focusHint.enableWordWrapping = false;
+            _focusHint.color = new Color(1f, 0.85f, 0.20f, 0.95f);
+            _focusHint.gameObject.SetActive(false);
+        }
+
+        // Gentle pulse while focused
+        _panelPulse = _panelChrome.AddComponent<FastLinkPanelPulse>();
+        _panelPulse.Init(_panelChromeCg);
+    }
+
+    private static void CreateEdge(string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 sizeDelta)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+        var rt = go.GetComponent<RectTransform>();
+        var img = go.GetComponent<Image>();
+        rt.SetParent(_panelChrome.transform, false);
+        rt.anchorMin = anchorMin;
+        rt.anchorMax = anchorMax;
+        rt.sizeDelta = sizeDelta;
+        rt.anchoredPosition = Vector2.zero;
+        img.raycastTarget = false;
+        img.color = PanelLineColor;
+    }
+
+    public static void UpdatePanelFocusChrome(bool focused)
+    {
+        if (!_panelChromeCg) return;
+
+        // toggle pulse + alpha
+        _panelPulse?.SetOn(focused);
+        _panelChromeCg.alpha = focused ? 0.6f : 0f;
+
+        // show hint only when a gamepad is active
+        if (!_focusHint) return;
+        _focusHint.text = focused ? "Focused • A: Join  B/LB: Back  D-Pad/LS: Navigate" : "Press RB to focus";
+        _focusHint.gameObject.SetActive(ZInput.IsGamepadActive());
+    }
+
+    // tiny helper MB to animate the alpha smoothly (no GC)
+    private sealed class FastLinkPanelPulse : MonoBehaviour
+    {
+        CanvasGroup _cg;
+        bool _on;
+
+        public void Init(CanvasGroup cg) => _cg = cg;
+
+        public void SetOn(bool on)
+        {
+            _on = on;
+            if (!on && _cg) _cg.alpha = 0f;
+        }
+
+        void Update()
+        {
+            if (!_on || !_cg) return;
+            // 0.45–0.85 alpha pulse, unscaled so menus feel snappy
+            float a = 0.45f + 0.40f * Mathf.PingPong(Time.unscaledTime * 1.6f, 1f);
+            _cg.alpha = a;
+        }
+    }
+
     internal static void ApplyStatusToRow(int index, Definition server, ServerListEntryData entry)
     {
         if (index < 0 || index >= SetupGui.MServerListElements.Count) return;
@@ -64,12 +237,12 @@ public static class Functions
         if (status)
         {
             status.gameObject.SetActive(true);
-            if (ServerListGui.s_instance == null && ServerListGui.s_instance != GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject.GetComponent<ServerListGui>())
+            var slg = GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel")?.GetComponent<ServerListGui>();
+            if (slg != null)
             {
-                ServerListGui.s_instance = GameObject.Find("GUI/StartGui/StartGame/Panel/JoinPanel").gameObject.GetComponent<ServerListGui>();
+                var icons = slg.m_connectIcons;
+                status.GetComponent<Image>().sprite = !entry.HasMatchmakingData ? icons.m_trying : (!entry.IsOnline ? (!entry.IsAvailable ? icons.m_unknown : icons.m_failed) : icons.m_success);
             }
-
-            status.GetComponent<Image>().sprite = !entry.HasMatchmakingData ? ServerListGui.s_instance?.m_connectIcons.m_trying : (!entry.IsOnline ? (!entry.IsAvailable ? ServerListGui.s_instance?.m_connectIcons.m_unknown : ServerListGui.s_instance?.m_connectIcons.m_failed) : ServerListGui.s_instance?.m_connectIcons.m_success);
         }
     }
 
@@ -209,8 +382,9 @@ public static class Functions
 
             FastLink.Net.ServerStatusService.RequestStatus(server, index, ApplyStatusToRow);
 
-            bool flag = MJoinServer != null && MJoinServer.Equals(server);
-            target.gameObject.SetActive(flag);
+            bool isFocusedSelect = MHasFocus && (MSelectedIndex == index);
+            bool isMouseSelect = !MHasFocus && (MJoinServer != null && MJoinServer.Equals(server));
+            target.gameObject.SetActive(isFocusedSelect || isMouseSelect);
         }
     }
 
@@ -305,93 +479,8 @@ public static class Functions
         SteamNetworkingIPAddr networkingIpAddr = new();
         networkingIpAddr.SetIPv6(address.GetAddressBytes(), port);
         ZSteamMatchmaking.instance.m_joinData = new ServerJoinData(new ServerJoinDataDedicated(networkingIpAddr.GetIPv4(), port));
-
-        /*ZSteamMatchmaking.instance.m_joinAddr.SetIPv6(address.GetAddressBytes(), port);
-        ZSteamMatchmaking.instance.m_haveJoinAddr = true;*/
         return true;
     }
-
-    /*private static bool JoinServer(IPAddress address, ushort port)
-    {
-        // Prefer IPv4. Convert mapped IPv6 back to v4.
-        if (address.AddressFamily == AddressFamily.InterNetworkV6 && address.IsIPv4MappedToIPv6)
-            address = address.MapToIPv4();
-
-        if (address.AddressFamily != AddressFamily.InterNetwork)
-            return false;
-
-        // SetIPv4 expects network-order (big-endian) value
-        uint networkOrder = (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(address.GetAddressBytes(), 0));
-
-        var dst = new SteamNetworkingIPAddr();
-        dst.SetIPv4(networkOrder, port);
-
-        ZSteamMatchmaking.instance.m_joinData = new ServerJoinData(new ServerJoinDataDedicated(dst.GetIPv4(), dst.m_port));
-
-        return true;
-    }*/
-
-
-    /*private static bool JoinServer(IPAddress address, ushort port)
-    {
-        string target = $"{(address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]" : $"{address}")}:{port}";
-        FastLinkPlugin.FastLinkLogger.LogDebug($"Server and Port passed into JoinServer: {target}");
-
-        if (address.AddressFamily == AddressFamily.InterNetwork)
-        {
-            address = address.MapToIPv6();
-        }
-
-        if (address.AddressFamily != AddressFamily.InterNetworkV6)
-        {
-            return false;
-        }
-
-        // Assuming instance of your join data structure
-        var myJoinData = GetMyJoinData(); // Replace with actual method to get join data
-
-        bool isPlayFabServer = myJoinData is ServerJoinDataPlayFabUser;
-        bool isSteamServer = myJoinData is ServerJoinDataSteamUser;
-        bool isDedicatedServer = myJoinData is ServerJoinDataDedicated;
-
-        if (isPlayFabServer)
-        {
-            // PlayFab server joining logic
-            var playFabJoinData = myJoinData as ServerJoinDataPlayFabUser;
-            ZNet.SetServerHost(playFabJoinData.m_remotePlayerId);
-        }
-        else if (isSteamServer)
-        {
-            // Steam server joining logic
-            var steamJoinData = myJoinData as ServerJoinDataSteamUser;
-            ZNet.SetServerHost((ulong)steamJoinData.m_joinUserID);
-        }
-        else if (isDedicatedServer)
-        {
-            // Dedicated server joining logic
-            var dedicatedJoinData = myJoinData as ServerJoinDataDedicated;
-            if (dedicatedJoinData.IsValid())
-            {
-                // Here, implement the logic for dedicated server joining,
-                // similar to what you see in the base game's JoinServer method.
-                // This might involve calling PlayFab matchmaking APIs and handling the response.
-            }
-            else
-            {
-                return false; // Invalid server data
-            }
-        }
-        else
-        {
-            FastLinkPlugin.FastLinkLogger.LogError("Unknown server data type");
-            return false;
-        }
-
-        // Additional code here for transitioning scenes, logging, etc., as needed.
-        // ...
-
-        return true;
-    }*/
 
 
     public static string? CurrentPass() => Connecting?.password;
@@ -405,7 +494,10 @@ public static class Functions
 
     private static void OnSelectedServer(GameObject gameObject)
     {
-        MJoinServer = MServerList[FindSelectedServer(gameObject)];
+        int idx = FindSelectedServer(gameObject);
+        if (idx >= 0) MSelectedIndex = idx;
+
+        MJoinServer = MServerList[idx];
         Connect(new Definition
         {
             serverName = MJoinServer.serverName, address = MJoinServer.address, port = MJoinServer.port,

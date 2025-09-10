@@ -18,7 +18,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.4.5";
+    internal const string ModVersion = "1.4.6";
     internal const string Author = "Azumatt";
     private const string ModGUID = $"{Author}.{ModName}";
     private static string ConfigFileName = $"{ModGUID}.cfg";
@@ -27,8 +27,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     internal static FastLinkPlugin instance = null!;
     internal readonly Harmony _harmony = new(ModGUID);
 
-    public static readonly ManualLogSource FastLinkLogger =
-        BepInEx.Logging.Logger.CreateLogSource(ModName);
+    public static readonly ManualLogSource FastLinkLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
 
     public enum Toggle
     {

@@ -66,7 +66,10 @@ internal class SetupGui
             FastLinkPlugin.FastLinkLogger.LogError($"Problem in the destroying of things!{e}");
             throw;
         }
-
+        
+        Functions.BuildPanelFocusChrome(Fastlink);
+        Functions.UpdatePanelFocusChrome(false);
+        
         Functions.PopulateServerList(Fastlink);
         Functions.UpdateServerList();
         // Make sure Steam matchmaking singleton exists (Valheim usually does this, but be safe here)
