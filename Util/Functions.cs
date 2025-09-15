@@ -117,20 +117,29 @@ public static class Functions
         var topic = panel.transform.Find("topic");
         if (topic != null)
         {
-            var hintGo = new GameObject("FastLinkGamepadHint", typeof(RectTransform), typeof(TextMeshProUGUI));
-            var hrt = hintGo.GetComponent<RectTransform>();
-            hrt.SetParent(topic, false);
-            hrt.anchoredPosition = new Vector2(0f, -44f); // a little to the right of the title
+            var topicText = topic.GetComponent<TMP_Text>();
+            if (!topicText) return;
 
-            _focusHint = hintGo.GetComponent<TextMeshProUGUI>();
-            _focusHint.text = "Focused • A: Join  B/LB: Back  D-Pad/LS: Navigate";
-            _focusHint.font = topic.GetComponent<TMP_Text>().font;
-            _focusHint.fontSize = 18f;
-            _focusHint.alignment = TextAlignmentOptions.CenterGeoAligned;
-            _focusHint.enableWordWrapping = false;
-            _focusHint.color = new Color(1f, 0.85f, 0.20f, 0.95f);
+            var hintText = GameObject.Instantiate(topicText, topic, false);
+            hintText.name = "FastLinkGamepadHint";
+
+            var hrt = hintText.rectTransform;
+            hrt.anchorMin = new Vector2(0.5f, 1f);
+            hrt.anchorMax = new Vector2(0.5f, 1f);
+            hrt.pivot = new Vector2(0.5f, 1f);
+            hrt.anchoredPosition = new Vector2(0f, -44f);
+
+            hintText.text = "Focused • A: Join  B/LB: Back  D-Pad/LS: Navigate";
+            hintText.fontSize = 18f;
+            hintText.alignment = TextAlignmentOptions.CenterGeoAligned;
+            hintText.enableWordWrapping = false;
+            hintText.color = new Color(1f, 0.85f, 0.20f, 0.95f);
+            hintText.raycastTarget = false;
+
+            _focusHint = hintText;
             _focusHint.gameObject.SetActive(false);
         }
+
 
         // Gentle pulse while focused
         _panelPulse = _panelChrome.AddComponent<FastLinkPanelPulse>();
