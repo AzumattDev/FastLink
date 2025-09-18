@@ -4,6 +4,7 @@ using FastLink.Patches;
 using FastLink.Util;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace FastLink;
 
@@ -53,35 +54,69 @@ static class HandleGamepadPatch
         }
 
         // If focused, handle navigation & submit entirely inside FastLink
-        if (!Functions.MHasFocus) return !consumed;
-        // D-pad or LS
-        if (ZInput.GetButtonDown("JoyLStickDown") || ZInput.GetButtonDown("JoyDPadDown"))
+        if (Functions.MHasFocus)
         {
-            Functions.MoveSelection(+1);
-            consumed = true;
+            if (Functions.Buttons != null && Functions.Buttons.Count > 0)
+            {
+                // Disable navigation in the main menu when FastLink has focus for each button
+
+                foreach (var button in Functions.Buttons)
+                    button.navigation = new Navigation { mode = Navigation.Mode.None };
+            }
+
+            // D-pad or LS
+            if (ZInput.GetButtonDown("JoyLStickDown") || ZInput.GetButtonDown("JoyDPadDown"))
+            {
+                Functions.MoveSelection(+1);
+                consumed = true;
+            }
+
+            if (ZInput.GetButtonDown("JoyLStickUp") || ZInput.GetButtonDown("JoyDPadUp"))
+            {
+                Functions.MoveSelection(-1);
+                consumed = true;
+            }
+
+            // A -> submit (JoystickButton0)
+            if (Input.GetKeyDown(KeyCode.JoystickButton0))
+            {
+                Functions.SubmitSelection();
+                Functions.FocusFastLink(false);
+                consumed = true;
+            }
+
+            // B or LB -> defocus (B = JoystickButton1, LB = JoystickButton4)
+            if (Input.GetKeyDown(KeyCode.JoystickButton1) || Input.GetKeyDown(KeyCode.JoystickButton4))
+            {
+                Functions.FocusFastLink(false);
+                consumed = true;
+            }
+
+            // Skip vanilla UpdateGamepad when we handled input, so the world/character lists don't also move.
+            return !consumed;
         }
 
-        if (ZInput.GetButtonDown("JoyLStickUp") || ZInput.GetButtonDown("JoyDPadUp"))
+        if (Functions.Buttons != null && Functions.Buttons.Count > 0)
         {
-            Functions.MoveSelection(-1);
-            consumed = true;
+            // Restore navigation from cache for each button
+            foreach (var button in Functions.Buttons)
+            {
+                if (Functions.ButtonNavigationCache.TryGetValue(button, out Navigation nav))
+                    button.navigation = nav;
+            }
         }
 
-        // A -> submit (JoystickButton0)
-        if (Input.GetKeyDown(KeyCode.JoystickButton0))
-        {
-            Functions.SubmitSelection();
-            consumed = true;
-        }
-
-        // B or LB -> defocus (B = JoystickButton1, LB = JoystickButton4)
-        if (Input.GetKeyDown(KeyCode.JoystickButton1) || Input.GetKeyDown(KeyCode.JoystickButton4))
-        {
-            Functions.FocusFastLink(false);
-            consumed = true;
-        }
-
-        // Skip vanilla UpdateGamepad when we handled input, so the world/character lists don't also move.
         return !consumed;
+    }
+}
+
+
+
+[HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.Awake))]
+static class CacheButtonNavigationsInMenu
+{
+    static void Postfix(FejdStartup __instance)
+    {
+        Functions.CacheButtonNavigations(__instance);
     }
 }

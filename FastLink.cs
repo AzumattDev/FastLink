@@ -9,6 +9,7 @@ using FastLink.Patches;
 using FastLink.Util;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace FastLink;
@@ -18,7 +19,7 @@ public partial class FastLinkPlugin : BaseUnityPlugin
 
 {
     internal const string ModName = "FastLink";
-    internal const string ModVersion = "1.4.7";
+    internal const string ModVersion = "1.4.8";
     internal const string Author = "Azumatt";
     private const string ModGUID = $"{Author}.{ModName}";
     private static string ConfigFileName = $"{ModGUID}.cfg";
@@ -38,6 +39,12 @@ public partial class FastLinkPlugin : BaseUnityPlugin
     private void Awake()
     {
 
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+        {
+            FastLinkLogger.LogWarning("FastLink is a client side mod and cannot run on a server. Disabling plugin. No configuration will be generated & no patches will be applied.");
+            return;
+        }
+        
         instance = this;
         Config.Bind("General", "FastLink URL", "https://valheim.thunderstore.io/package/Azumatt/FastLink/",
             new ConfigDescription("Link to the mod page", null,

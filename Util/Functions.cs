@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using BepInEx.Configuration;
@@ -22,11 +24,26 @@ public static class Functions
     private static FastLinkPanelPulse _panelPulse;
     private static TMP_Text _focusHint;
     private static readonly Color PanelLineColor = new(1f, 0.85f, 0.20f, 1f);
-    private static readonly Color FocusBarColor = new(1f, 0.85f, 0.20f, 0.95f); // gold bar
-    private static readonly Color FocusFillColor = new(1f, 0.85f, 0.20f, 0.18f); // faint gold overlay
-    private static readonly Color NameFocusedColor = Color.white;
-    private static readonly Color NameNormalColor = new(0.88f, 0.88f, 0.88f, 1f);
+    internal static Dictionary<Button, Navigation> ButtonNavigationCache = new();
+    internal static HashSet<Button> Buttons = new();
 
+
+    internal static void CacheButtonNavigations(FejdStartup __instance)
+    {
+        Transform? menu = __instance.transform.Find("Menu");
+        if (menu == null) return;
+        Transform? menulist = menu.Find("MenuList");
+        if (menulist == null) return;
+        Transform? entries = menulist.Find("MenuEntries");
+        if (entries == null) return;
+        Buttons = entries.GetComponentsInChildren<Button>(true).ToHashSet();
+        foreach (Button? btn in Buttons)
+        {
+            if (!btn) continue;
+            Navigation nav = btn.navigation;
+            ButtonNavigationCache[btn] = nav;
+        }
+    }
 
     internal static void FocusFastLink(bool focus)
     {
@@ -41,7 +58,7 @@ public static class Functions
             UpdateServerListGui(false);
         }
 
-        UpdatePanelFocusChrome(focus); // <---- add this
+        UpdatePanelFocusChrome(focus);
     }
 
     internal static void MoveSelection(int delta)
